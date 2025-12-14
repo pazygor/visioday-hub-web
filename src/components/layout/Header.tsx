@@ -77,7 +77,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
         {/* Botão Menu Hambúrguer (mobile/tablet) */}
         <button
           onClick={onMenuClick}
-          className="lg:hidden text-gray-600 hover:text-[#0066B1] p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="lg:hidden text-gray-600 hover:text-[#9B0310] p-2 hover:bg-gray-100 rounded-lg transition-colors"
           aria-label="Abrir menu"
         >
           <Menu className="w-6 h-6" />
@@ -91,7 +91,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
               {item.path ? (
                 <Link
                   to={item.path}
-                  className="text-gray-600 hover:text-[#0066B1] transition-colors hidden sm:inline"
+                  className="text-gray-600 hover:text-[#9B0310] transition-colors hidden sm:inline"
                 >
                   {item.label}
                 </Link>
@@ -109,10 +109,10 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
         >
           {/* Avatar com iniciais */}
-          <div className="w-10 h-10 rounded-full bg-[#0066B1] flex items-center justify-center text-white font-semibold text-sm">
+          <div className="w-10 h-10 rounded-full bg-[#9B0310] flex items-center justify-center text-white font-semibold text-sm">
             {user ? getInitials(user.name) : 'U'}
           </div>
           
@@ -163,7 +163,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                   setDropdownOpen(false)
                   logout()
                 }}
-                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
                 Sair

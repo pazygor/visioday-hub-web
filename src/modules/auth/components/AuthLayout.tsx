@@ -10,12 +10,12 @@ export const AuthLayout = ({ children, imageContent }: AuthLayoutProps) => {
     <div className="min-h-screen flex flex-col lg:flex-row bg-background">
       {/* Imagem lateral - apenas desktop */}
       {imageContent && (
-        <div className="hidden lg:flex lg:w-1/2 bg-[#002358] flex-col items-center justify-center p-12">
+        <div className="hidden lg:flex lg:w-1/2 bg-[#9B0310] flex-col items-center justify-center p-12">
           {/* Logo no topo da sidebar */}
           <div className="absolute top-8 left-8">
             <img 
-              src="/images/logos/logo-mttechne.png" 
-              alt="Mttechne DataHub" 
+              src="/images/logos/logo-visionday-no-bg.png" 
+              alt="VisionDay Hub" 
               className="h-10 w-auto object-contain brightness-0 invert"
             />
           </div>

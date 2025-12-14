@@ -24,10 +24,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const variants = {
-      primary: 'bg-primary text-primary-foreground hover:bg-[#002358] hover:text-white cursor-pointer',
-      secondary: 'bg-secondary text-secondary-foreground hover:bg-[#002358] hover:text-white cursor-pointer',
-      outline: 'border-2 border-primary text-primary hover:bg-[#002358] hover:text-white hover:border-[#002358] cursor-pointer',
-      ghost: 'text-primary hover:bg-[#002358] hover:text-white cursor-pointer',
+      primary: 'bg-primary text-primary-foreground hover:bg-[#7A0209] hover:text-white cursor-pointer',
+      secondary: 'bg-secondary text-secondary-foreground hover:bg-[#7A0209] hover:text-white cursor-pointer',
+      outline: 'border-2 border-primary text-primary hover:bg-[#7A0209] hover:text-white hover:border-[#7A0209] cursor-pointer',
+      ghost: 'text-primary hover:bg-[#7A0209] hover:text-white cursor-pointer',
       destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer'
     }
 

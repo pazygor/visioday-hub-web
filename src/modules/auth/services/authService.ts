@@ -8,12 +8,12 @@ import type {
 
 // Mock de usuário válido
 const MOCK_USER = {
-  email: 'pazygor080@gmail.com',
+  email: 'dayane_paz@gmail.com',
   password: 'Pazygor080@',
   user: {
     id: '1',
-    name: 'Ygor Paz',
-    email: 'pazygor080@gmail.com',
+    name: 'Dayane Paz',
+    email: 'dayane_paz@gmail.com',
     role: 'admin'
   }
 }

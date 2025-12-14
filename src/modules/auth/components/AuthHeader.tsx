@@ -10,8 +10,8 @@ export const AuthHeader = ({ title, subtitle, showLogo = true }: AuthHeaderProps
       {showLogo && (
         <div className="mb-6 flex justify-center">
           <img 
-            src="/images/logos/logo-mttechne.png" 
-            alt="Mttechne DataHub" 
+            src="/images/logos/logo-visionday-no-bg.png" 
+            alt="VisionDay Hub" 
             className="h-12 w-auto object-contain"
           />
         </div>

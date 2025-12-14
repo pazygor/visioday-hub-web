@@ -20,8 +20,8 @@ export const DashboardPage = () => {
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-gray-600">Prospecção</h3>
-            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-              <span className="text-blue-600 text-xl">📊</span>
+            <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+              <span className="text-red-600 text-xl">📊</span>
             </div>
           </div>
           <p className="text-3xl font-bold text-gray-900">124</p>

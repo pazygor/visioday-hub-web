@@ -95,7 +95,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       {/* Sidebar */}
       <aside
         className={`
-          w-64 h-screen bg-[#002358] text-white flex flex-col fixed left-0 top-0 z-50 transition-transform duration-300
+          w-64 h-screen bg-[#9B0310] text-white flex flex-col fixed left-0 top-0 z-50 transition-transform duration-300
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
@@ -104,8 +104,8 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img 
-                src="/images/logos/logo-mttechne.png" 
-                alt="Mttechne" 
+                src="/images/logos/logo-visionday-no-bg.png" 
+                alt="VisionDay" 
                 className="h-8 w-auto object-contain brightness-0 invert"
               />
             </div>
@@ -137,7 +137,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               className={`
                 flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
                 ${isActive(item.path)
-                  ? 'bg-[#0066B1] text-white font-medium'
+                  ? 'bg-[#7A0209] text-white font-medium'
                   : 'text-white/90 hover:bg-white/10 hover:text-white'
                 }
               `}
