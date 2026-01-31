@@ -105,4 +105,4 @@ refactor: refatoração
 
 ##  Licença
 
-© 2025 Mttechne - Todos os direitos reservados.
+© 2026 Visionday - Todos os direitos reservados.
