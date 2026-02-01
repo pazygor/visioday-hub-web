@@ -3,7 +3,6 @@ import { Toaster } from 'react-hot-toast'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { PrivateRoute } from '@/components/PrivateRoute'
-import { AppLayout } from '@/components/layout/AppLayout'
 
 // Auth Pages
 import { LoginPage } from '@/modules/auth/pages/LoginPage'
@@ -11,8 +10,20 @@ import { RegisterPage } from '@/modules/auth/pages/RegisterPage'
 import { ForgotPasswordPage } from '@/modules/auth/pages/ForgotPasswordPage'
 import { ResetPasswordPage } from '@/modules/auth/pages/ResetPasswordPage'
 
-// Dashboard
-import { DashboardPage } from '@/modules/dashboard/pages/DashboardPage'
+// Choose System
+import { ChooseSystemPage } from '@/modules/choose-system/pages/ChooseSystemPage'
+
+// Digital System
+import { DigitalLayout } from '@/modules/digital/components/DigitalLayout'
+import { DigitalDashboardPage } from '@/modules/digital/pages/DigitalDashboardPage'
+
+// Finance System
+import { FinanceLayout } from '@/modules/finance/components/FinanceLayout'
+import { FinanceDashboardPage } from '@/modules/finance/pages/FinanceDashboardPage'
+
+// Academy System
+import { AcademyLayout } from '@/modules/academy/components/AcademyLayout'
+import { AcademyDashboardPage } from '@/modules/academy/pages/AcademyDashboardPage'
 
 function App() {
   return (
@@ -26,20 +37,49 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
-            {/* Protected Routes with Layout */}
+            {/* Choose System */}
             <Route element={<PrivateRoute />}>
-              <Route path="/dashboard" element={<AppLayout><DashboardPage /></AppLayout>} />
-              <Route path="/prospecting" element={<AppLayout><div>Prospecção em breve</div></AppLayout>} />
-              <Route path="/pre-approval" element={<AppLayout><div>Pré-Aprovados em breve</div></AppLayout>} />
-              <Route path="/approach" element={<AppLayout><div>Abordagem em breve</div></AppLayout>} />
-              <Route path="/opening" element={<AppLayout><div>Abertura em breve</div></AppLayout>} />
-              <Route path="/flowchart" element={<AppLayout><div>Fluxograma em breve</div></AppLayout>} />
-              <Route path="/functional-design" element={<AppLayout><div>Desenho Funcional em breve</div></AppLayout>} />
+              <Route path="/choose-system" element={<ChooseSystemPage />} />
+            </Route>
+
+            {/* Digital System Routes */}
+            <Route element={<PrivateRoute />}>
+              <Route path="/digital" element={<DigitalLayout />}>
+                <Route path="dashboard" element={<DigitalDashboardPage />} />
+                <Route path="clients" element={<div>Clientes em breve</div>} />
+                <Route path="documents" element={<div>Documentos em breve</div>} />
+                <Route path="taxes" element={<div>Obrigações em breve</div>} />
+                <Route path="settings" element={<div>Configurações em breve</div>} />
+              </Route>
+            </Route>
+
+            {/* Finance System Routes */}
+            <Route element={<PrivateRoute />}>
+              <Route path="/finance" element={<FinanceLayout />}>
+                <Route path="dashboard" element={<FinanceDashboardPage />} />
+                <Route path="accounts" element={<div>Contas em breve</div>} />
+                <Route path="transactions" element={<div>Transações em breve</div>} />
+                <Route path="bills" element={<div>Contas a Pagar em breve</div>} />
+                <Route path="cards" element={<div>Cartões em breve</div>} />
+                <Route path="settings" element={<div>Configurações em breve</div>} />
+              </Route>
+            </Route>
+
+            {/* Academy System Routes */}
+            <Route element={<PrivateRoute />}>
+              <Route path="/academy" element={<AcademyLayout />}>
+                <Route path="dashboard" element={<AcademyDashboardPage />} />
+                <Route path="courses" element={<div>Meus Cursos em breve</div>} />
+                <Route path="catalog" element={<div>Catálogo em breve</div>} />
+                <Route path="certificates" element={<div>Certificados em breve</div>} />
+                <Route path="schedule" element={<div>Agenda em breve</div>} />
+                <Route path="settings" element={<div>Configurações em breve</div>} />
+              </Route>
             </Route>
 
             {/* Redirect */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
 
           {/* Toast Notifications */}

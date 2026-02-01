@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useCallback, type ReactNode } from 'react'
-import type { User } from '@/modules/auth/types/auth.types'
+import type { User, SystemType } from '@/modules/auth/types/auth.types'
 
 interface AuthContextData {
   user: User | null
@@ -8,6 +8,7 @@ interface AuthContextData {
   isLoading: boolean
   setUser: (user: User | null) => void
   setToken: (token: string | null) => void
+  setCurrentSystem: (system: SystemType) => void
   logout: () => void
 }
 
@@ -64,6 +65,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [user])
 
+  const setCurrentSystem = useCallback((system: SystemType) => {
+    if (user) {
+      const updatedUser = { ...user, currentSystem: system }
+      setUser(updatedUser)
+    }
+  }, [user])
+
   const logout = useCallback(() => {
     setUser(null)
     setToken(null)
@@ -79,6 +87,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     isLoading,
     setUser,
     setToken,
+    setCurrentSystem,
     logout
   }
 

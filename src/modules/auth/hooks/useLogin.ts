@@ -27,7 +27,23 @@ export const useLogin = () => {
       }
 
       toast.success('Login realizado com sucesso!')
-      navigate('/dashboard')
+
+      // Redirecionar baseado nos sistemas que o usuário tem acesso
+      const userSystems = response.user.systems || []
+      
+      if (userSystems.length === 0) {
+        toast.error('Usuário sem acesso a sistemas')
+        return
+      }
+      
+      if (userSystems.length === 1) {
+        // Se tem apenas 1 sistema, redireciona direto
+        const system = userSystems[0]
+        navigate(`/${system}/dashboard`)
+      } else {
+        // Se tem mais de 1 sistema, vai para tela de escolha
+        navigate('/choose-system')
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro ao fazer login'
       setError(message)

@@ -14,7 +14,8 @@ const MOCK_USER = {
     id: '1',
     name: 'Dayane Paz',
     email: 'dayane_paz@gmail.com',
-    role: 'admin'
+    role: 'admin',
+    systems: ['digital', 'finance', 'academy'] // Usuário tem acesso aos 3 sistemas
   }
 }
 
