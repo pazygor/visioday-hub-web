@@ -1,5 +1,20 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Wallet, TrendingUp, Receipt, CreditCard, Settings, LogOut, X } from 'lucide-react'
+import { useState } from 'react'
+import { 
+  Home, 
+  DollarSign, 
+  TrendingDown, 
+  TrendingUp, 
+  Bell, 
+  Tag, 
+  FileText, 
+  FilePlus,
+  ChevronDown,
+  ChevronRight,
+  Settings, 
+  LogOut, 
+  X 
+} from 'lucide-react'
 import { useAuth } from '@/modules/auth/hooks/useAuth'
 
 interface SidebarProps {
@@ -7,20 +22,68 @@ interface SidebarProps {
   onClose: () => void
 }
 
-const menuItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: <Home className="w-5 h-5" />, path: '/finance/dashboard' },
-  { id: 'accounts', label: 'Contas', icon: <Wallet className="w-5 h-5" />, path: '/finance/accounts' },
-  { id: 'transactions', label: 'Transações', icon: <TrendingUp className="w-5 h-5" />, path: '/finance/transactions' },
-  { id: 'bills', label: 'Contas a Pagar', icon: <Receipt className="w-5 h-5" />, path: '/finance/bills' },
-  { id: 'cards', label: 'Cartões', icon: <CreditCard className="w-5 h-5" />, path: '/finance/cards' },
-  { id: 'settings', label: 'Configurações', icon: <Settings className="w-5 h-5" />, path: '/finance/settings' },
+interface MenuItem {
+  id: string
+  label: string
+  icon: JSX.Element
+  path?: string
+  submenu?: {
+    id: string
+    label: string
+    path: string
+  }[]
+}
+
+const menuItems: MenuItem[] = [
+  // Menu Financeiro
+  {
+    id: 'financeiro',
+    label: 'Financeiro',
+    icon: <DollarSign className="w-5 h-5" />,
+    submenu: [
+      { id: 'dashboard', label: 'Dashboard', path: '/finance/dashboard' },
+      { id: 'receivables', label: 'Contas a Receber', path: '/finance/receivables' },
+      { id: 'payables', label: 'Contas a Pagar', path: '/finance/payables' },
+      { id: 'cashflow', label: 'Fluxo de Caixa', path: '/finance/cashflow' },
+      { id: 'alerts', label: 'Alertas', path: '/finance/alerts' },
+      { id: 'categories', label: 'Categorias', path: '/finance/categories' },
+    ],
+  },
+  // Menu Faturamento
+  {
+    id: 'faturamento',
+    label: 'Faturamento',
+    icon: <FileText className="w-5 h-5" />,
+    submenu: [
+      { id: 'invoices', label: 'Faturas', path: '/finance/invoices' },
+      { id: 'create-invoice', label: 'Gerar Fatura', path: '/finance/invoices/create' },
+    ],
+  },
+  // Configurações (sem submenu)
+  {
+    id: 'settings',
+    label: 'Configurações',
+    icon: <Settings className="w-5 h-5" />,
+    path: '/finance/settings',
+  },
 ]
 
 export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const location = useLocation()
   const { logout } = useAuth()
+  const [expandedMenus, setExpandedMenus] = useState<string[]>(['financeiro', 'faturamento'])
 
   const isActive = (path: string) => location.pathname === path
+  
+  const isMenuExpanded = (menuId: string) => expandedMenus.includes(menuId)
+  
+  const toggleMenu = (menuId: string) => {
+    setExpandedMenus(prev =>
+      prev.includes(menuId)
+        ? prev.filter(id => id !== menuId)
+        : [...prev, menuId]
+    )
+  }
 
   const handleLinkClick = () => {
     if (window.innerWidth < 1024) {
@@ -72,23 +135,67 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         <div className="border-t border-white/20 mx-4" />
 
         {/* Menu Items */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {menuItems.map((item) => (
-            <Link
-              key={item.id}
-              to={item.path}
-              onClick={handleLinkClick}
-              className={`
-                flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
-                ${isActive(item.path)
-                  ? 'bg-[#7A0209] text-white font-medium'
-                  : 'text-white/90 hover:bg-white/10 hover:text-white'
-                }
-              `}
-            >
-              {item.icon}
-              <span className="text-sm">{item.label}</span>
-            </Link>
+            <div key={item.id}>
+              {/* Menu com submenu */}
+              {item.submenu ? (
+                <>
+                  <button
+                    onClick={() => toggleMenu(item.id)}
+                    className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3">
+                      {item.icon}
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </div>
+                    {isMenuExpanded(item.id) ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
+                    )}
+                  </button>
+                  
+                  {/* Submenu */}
+                  {isMenuExpanded(item.id) && (
+                    <div className="ml-4 mt-1 space-y-1">
+                      {item.submenu.map((subItem) => (
+                        <Link
+                          key={subItem.id}
+                          to={subItem.path}
+                          onClick={handleLinkClick}
+                          className={`
+                            flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-sm
+                            ${isActive(subItem.path)
+                              ? 'bg-[#7A0209] text-white font-medium'
+                              : 'text-white/80 hover:bg-white/10 hover:text-white'
+                            }
+                          `}
+                        >
+                          <span>{subItem.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                /* Menu simples sem submenu */
+                <Link
+                  to={item.path!}
+                  onClick={handleLinkClick}
+                  className={`
+                    flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
+                    ${isActive(item.path!)
+                      ? 'bg-[#7A0209] text-white font-medium'
+                      : 'text-white/90 hover:bg-white/10 hover:text-white'
+                    }
+                  `}
+                >
+                  {item.icon}
+                  <span className="text-sm">{item.label}</span>
+                </Link>
+              )}
+            </div>
           ))}
         </nav>
 

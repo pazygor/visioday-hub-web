@@ -19,7 +19,17 @@ import { DigitalDashboardPage } from '@/modules/digital/pages/DigitalDashboardPa
 
 // Finance System
 import { FinanceLayout } from '@/modules/finance/components/FinanceLayout'
-import { FinanceDashboardPage } from '@/modules/finance/pages/FinanceDashboardPage'
+import { 
+  FinanceDashboardPage,
+  ReceivablesPage,
+  PayablesPage,
+  CashFlowPage,
+  AlertsPage,
+  CategoriesPage,
+  InvoicesPage,
+  CreateInvoicePage,
+  FinanceSettingsPage
+} from '@/modules/finance/pages'
 
 // Academy System
 import { AcademyLayout } from '@/modules/academy/components/AcademyLayout'
@@ -57,11 +67,14 @@ function App() {
             <Route element={<PrivateRoute />}>
               <Route path="/finance" element={<FinanceLayout />}>
                 <Route path="dashboard" element={<FinanceDashboardPage />} />
-                <Route path="accounts" element={<div>Contas em breve</div>} />
-                <Route path="transactions" element={<div>Transações em breve</div>} />
-                <Route path="bills" element={<div>Contas a Pagar em breve</div>} />
-                <Route path="cards" element={<div>Cartões em breve</div>} />
-                <Route path="settings" element={<div>Configurações em breve</div>} />
+                <Route path="receivables" element={<ReceivablesPage />} />
+                <Route path="payables" element={<PayablesPage />} />
+                <Route path="cashflow" element={<CashFlowPage />} />
+                <Route path="alerts" element={<AlertsPage />} />
+                <Route path="categories" element={<CategoriesPage />} />
+                <Route path="invoices" element={<InvoicesPage />} />
+                <Route path="invoices/create" element={<CreateInvoicePage />} />
+                <Route path="settings" element={<FinanceSettingsPage />} />
               </Route>
             </Route>
 

@@ -5,6 +5,8 @@ import type {
   ForgotPasswordRequest,
   ResetPasswordRequest
 } from '../types/auth.types'
+import environment from '@/config/environment'
+import api from '@/services/httpClient'
 
 // Mock de usuário válido
 const MOCK_USER = {
@@ -23,8 +25,8 @@ const MOCK_USER = {
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 // Flag para controlar se deve usar API real ou mock
-const USE_MOCK = true // Mude para false quando tiver a API real
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const USE_MOCK = false // API real conectada!
+const API_URL = environment.api.baseURL
 
 export const authService = {
   /**
@@ -47,18 +49,10 @@ export const authService = {
       }
     } else {
       // Implementação real com API
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+      return api.post<LoginResponse>('/auth/login', {
+        email: data.email,
+        senha: data.password // Frontend usa 'password', backend usa 'senha'
       })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Erro ao fazer login')
-      }
-
-      return response.json()
     }
   },
 
