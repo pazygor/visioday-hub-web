@@ -131,7 +131,7 @@ export const AlertsPage = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => setFiltroLido(false)}
-                  className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+                  className={`px-3 py-1 text-sm rounded-lg transition-colors cursor-pointer ${
                     !filtroLido
                       ? 'bg-[#9B0310] text-white'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -141,7 +141,7 @@ export const AlertsPage = () => {
                 </button>
                 <button
                   onClick={() => setFiltroLido(true)}
-                  className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+                  className={`px-3 py-1 text-sm rounded-lg transition-colors cursor-pointer ${
                     filtroLido
                       ? 'bg-[#9B0310] text-white'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -154,11 +154,11 @@ export const AlertsPage = () => {
             <div className="flex gap-2">
               <button
                 onClick={handleMarcarTodosLidos}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
               >
                 Marcar Todos Lidos
               </button>
-              <button className="px-4 py-2 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors">
+              <button className="px-4 py-2 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors cursor-pointer">
                 Configurar Alertas
               </button>
             </div>
@@ -204,7 +204,7 @@ export const AlertsPage = () => {
                           {!alerta.lido && (
                             <button
                               onClick={() => handleMarcarLido(alerta.id)}
-                              className="text-sm text-blue-600 hover:text-blue-800"
+                              className="text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
                             >
                               Marcar como lido
                             </button>

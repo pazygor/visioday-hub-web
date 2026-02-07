@@ -13,7 +13,8 @@ import {
   ChevronRight,
   Settings, 
   LogOut, 
-  X 
+  X,
+  Users
 } from 'lucide-react'
 import { useAuth } from '@/modules/auth/hooks/useAuth'
 
@@ -59,6 +60,15 @@ const menuItems: MenuItem[] = [
       { id: 'create-invoice', label: 'Gerar Fatura', path: '/finance/invoices/create' },
     ],
   },
+  // Menu Cadastro
+  {
+    id: 'cadastro',
+    label: 'Cadastro',
+    icon: <Users className="w-5 h-5" />,
+    submenu: [
+      { id: 'clients', label: 'Clientes', path: '/finance/clients' },
+    ],
+  },
   // Configurações (sem submenu)
   {
     id: 'settings',
@@ -71,7 +81,7 @@ const menuItems: MenuItem[] = [
 export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const location = useLocation()
   const { logout } = useAuth()
-  const [expandedMenus, setExpandedMenus] = useState<string[]>(['financeiro', 'faturamento'])
+  const [expandedMenus, setExpandedMenus] = useState<string[]>(['financeiro', 'faturamento', 'cadastro'])
 
   const isActive = (path: string) => location.pathname === path
   
@@ -120,7 +130,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
             </div>
             <button
               onClick={onClose}
-              className="lg:hidden text-white hover:bg-white/10 p-2 rounded-lg transition-colors"
+              className="lg:hidden text-white hover:bg-white/10 p-2 rounded-lg transition-colors cursor-pointer"
               aria-label="Fechar menu"
             >
               <X className="w-5 h-5" />

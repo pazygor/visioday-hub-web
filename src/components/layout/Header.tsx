@@ -77,7 +77,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
         {/* Botão Menu Hambúrguer (mobile/tablet) */}
         <button
           onClick={onMenuClick}
-          className="lg:hidden text-gray-600 hover:text-[#9B0310] p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="lg:hidden text-gray-600 hover:text-[#9B0310] p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
           aria-label="Abrir menu"
         >
           <Menu className="w-6 h-6" />

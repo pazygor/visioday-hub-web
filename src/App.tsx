@@ -28,7 +28,8 @@ import {
   CategoriesPage,
   InvoicesPage,
   CreateInvoicePage,
-  FinanceSettingsPage
+  FinanceSettingsPage,
+  ClientsPage
 } from '@/modules/finance/pages'
 
 // Academy System
@@ -72,6 +73,7 @@ function App() {
                 <Route path="cashflow" element={<CashFlowPage />} />
                 <Route path="alerts" element={<AlertsPage />} />
                 <Route path="categories" element={<CategoriesPage />} />
+                <Route path="clients" element={<ClientsPage />} />
                 <Route path="invoices" element={<InvoicesPage />} />
                 <Route path="invoices/create" element={<CreateInvoicePage />} />
                 <Route path="settings" element={<FinanceSettingsPage />} />

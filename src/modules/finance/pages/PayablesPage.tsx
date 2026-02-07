@@ -53,7 +53,7 @@ export const PayablesPage = () => {
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-gray-900">Próximas Contas a Pagar</h2>
-            <button className="px-4 py-2 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors">
+            <button className="px-4 py-2 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors cursor-pointer">
               + Nova Despesa
             </button>
           </div>

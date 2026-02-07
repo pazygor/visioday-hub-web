@@ -60,7 +60,7 @@ export const InvoicesPage = () => {
               </select>
             </div>
 
-            <button className="px-4 py-2 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors">
+            <button className="px-4 py-2 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors cursor-pointer">
               + Nova Fatura
             </button>
           </div>
@@ -121,8 +121,8 @@ export const InvoicesPage = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button className="text-[#9B0310] hover:text-[#7A0209] mr-3">Ver</button>
-                  <button className="text-gray-600 hover:text-gray-900">Download</button>
+                  <button className="text-[#9B0310] hover:text-[#7A0209] mr-3 cursor-pointer">Ver</button>
+                  <button className="text-gray-600 hover:text-gray-900 cursor-pointer">Download</button>
                 </td>
               </tr>
 
@@ -152,8 +152,8 @@ export const InvoicesPage = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button className="text-[#9B0310] hover:text-[#7A0209] mr-3">Ver</button>
-                  <button className="text-gray-600 hover:text-gray-900">Download</button>
+                  <button className="text-[#9B0310] hover:text-[#7A0209] mr-3 cursor-pointer">Ver</button>
+                  <button className="text-gray-600 hover:text-gray-900 cursor-pointer">Download</button>
                 </td>
               </tr>
 
@@ -183,8 +183,8 @@ export const InvoicesPage = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button className="text-[#9B0310] hover:text-[#7A0209] mr-3">Ver</button>
-                  <button className="text-gray-600 hover:text-gray-900">Download</button>
+                  <button className="text-[#9B0310] hover:text-[#7A0209] mr-3 cursor-pointer">Ver</button>
+                  <button className="text-gray-600 hover:text-gray-900 cursor-pointer">Download</button>
                 </td>
               </tr>
             </tbody>
@@ -198,13 +198,13 @@ export const InvoicesPage = () => {
             <span className="font-medium">127</span> resultados
           </div>
           <div className="flex items-center gap-2">
-            <button className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">
+            <button className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 cursor-pointer">
               Anterior
             </button>
-            <button className="px-3 py-1 bg-[#9B0310] text-white rounded-md text-sm">1</button>
-            <button className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">2</button>
-            <button className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">3</button>
-            <button className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50">
+            <button className="px-3 py-1 bg-[#9B0310] text-white rounded-md text-sm cursor-pointer">1</button>
+            <button className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 cursor-pointer">2</button>
+            <button className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 cursor-pointer">3</button>
+            <button className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 cursor-pointer">
               Próximo
             </button>
           </div>

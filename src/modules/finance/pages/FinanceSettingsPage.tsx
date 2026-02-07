@@ -67,7 +67,7 @@ export const FinanceSettingsPage = () => {
               </div>
             </div>
             <div className="mt-6 flex justify-end">
-              <button className="px-6 py-2 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors">
+              <button className="px-6 py-2 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors cursor-pointer">
                 Salvar Informações
               </button>
             </div>
@@ -133,7 +133,7 @@ export const FinanceSettingsPage = () => {
               </div>
             </div>
             <div className="mt-6 flex justify-end">
-              <button className="px-6 py-2 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors">
+              <button className="px-6 py-2 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors cursor-pointer">
                 Salvar Dados Bancários
               </button>
             </div>
@@ -193,7 +193,7 @@ export const FinanceSettingsPage = () => {
               </div>
             </div>
             <div className="mt-6 flex justify-end">
-              <button className="px-6 py-2 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors">
+              <button className="px-6 py-2 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors cursor-pointer">
                 Salvar Preferências
               </button>
             </div>
@@ -243,7 +243,7 @@ export const FinanceSettingsPage = () => {
               </div>
             </div>
             <div className="mt-6 flex justify-end">
-              <button className="px-6 py-2 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors">
+              <button className="px-6 py-2 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors cursor-pointer">
                 Salvar Notificações
               </button>
             </div>

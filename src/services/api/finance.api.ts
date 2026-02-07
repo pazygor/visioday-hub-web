@@ -9,7 +9,7 @@ const getToken = () => {
   return token;
 };
 
-// Helper para criar cliente autenticado (sem tipo de retorno explícito para evitar problemas circulares)
+// Helper para criar cliente autenticado
 const authClient = () => httpClient.withAuth(getToken());
 
 // Tipos
@@ -50,6 +50,9 @@ export interface FinanceCliente {
   telefone?: string;
   endereco?: string;
   observacoes?: string;
+  ativo: boolean;
+  createdAt: string;
+  updatedAt: string;
   contasReceber?: any[];
   faturas?: any[];
 }
@@ -88,6 +91,10 @@ export interface FinanceContaReceber {
   recorrente: boolean;
   frequenciaRecorrencia?: string;
   observacoes?: string;
+  clienteId?: number;
+  categoriaId?: number;
+  contaBancariaId?: number;
+  formaPagamentoId?: number;
   cliente?: FinanceCliente;
   categoria?: FinanceCategoria;
   contaBancaria?: FinanceContaBancaria;
@@ -228,29 +235,40 @@ export const deleteContaBancaria = (id: number) => {
 };
 
 // API - Clientes
-export const getClientes = () => {
-  return authClient().get<FinanceCliente[]>('/finance/clientes');
+const clientesApi = {
+  list: (incluirInativos = false) => {
+    const query = incluirInativos ? '?todos=true' : '';
+    return authClient().get<FinanceCliente[]>(`/finance/clientes${query}`);
+  },
+
+  search: (q: string) => {
+    return authClient().get<FinanceCliente[]>(`/finance/clientes/buscar?q=${encodeURIComponent(q)}`);
+  },
+
+  getById: (id: number) => {
+    return authClient().get<FinanceCliente>(`/finance/clientes/${id}`);
+  },
+
+  create: (data: Omit<FinanceCliente, 'id' | 'contasReceber' | 'faturas' | 'createdAt' | 'updatedAt'>) => {
+    return authClient().post<FinanceCliente>('/finance/clientes', data);
+  },
+
+  update: (id: number, data: Partial<FinanceCliente>) => {
+    return authClient().patch<FinanceCliente>(`/finance/clientes/${id}`, data);
+  },
+
+  delete: (id: number) => {
+    return authClient().delete(`/finance/clientes/${id}`);
+  },
 };
 
-export const buscarClientes = (q: string) => {
-  return authClient().get<FinanceCliente[]>(`/finance/clientes/buscar?q=${encodeURIComponent(q)}`);
-};
-
-export const getCliente = (id: number) => {
-  return authClient().get<FinanceCliente>(`/finance/clientes/${id}`);
-};
-
-export const createCliente = (data: Omit<FinanceCliente, 'id' | 'contasReceber' | 'faturas'>) => {
-  return authClient().post<FinanceCliente>('/finance/clientes', data);
-};
-
-export const updateCliente = (id: number, data: Partial<FinanceCliente>) => {
-  return authClient().patch<FinanceCliente>(`/finance/clientes/${id}`, data);
-};
-
-export const deleteCliente = (id: number) => {
-  return authClient().delete(`/finance/clientes/${id}`);
-};
+// Manter backward compatibility
+export const getClientes = () => clientesApi.list();
+export const buscarClientes = (q: string) => clientesApi.search(q);
+export const getCliente = (id: number) => clientesApi.getById(id);
+export const createCliente = (data: Omit<FinanceCliente, 'id' | 'contasReceber' | 'faturas' | 'createdAt' | 'updatedAt'>) => clientesApi.create(data);
+export const updateCliente = (id: number, data: Partial<FinanceCliente>) => clientesApi.update(id, data);
+export const deleteCliente = (id: number) => clientesApi.delete(id);
 
 // API - Fornecedores
 export const getFornecedores = () => {
@@ -298,10 +316,14 @@ export const getContasReceber = (filtros?: {
 
 export const getResumoContasReceber = () => {
   return authClient().get<{
-    totalReceber: number;
-    totalRecebido: number;
     totalPendente: number;
-    totalVencidas: number;
+    totalPago: number;
+    totalVencido: number;
+    totalMes: number;
+    contasPendentes: number;
+    contasVencidas: number;
+    contasPagas: number;
+    proximosRecebimentos: any[];
   }>('/finance/contas-receber/resumo');
 };
 
@@ -455,5 +477,7 @@ export const gerarAlertas = () => {
   return authClient().post('/finance/alertas/gerar');
 };
 
-
-
+// Export API organizada
+export const financeApi = {
+  clientes: clientesApi,
+};

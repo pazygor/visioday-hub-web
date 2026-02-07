@@ -67,7 +67,7 @@ export const CreateInvoicePage = () => {
                   <label className="block text-sm font-medium text-gray-700">
                     Itens da Fatura *
                   </label>
-                  <button className="text-sm text-[#9B0310] hover:text-[#7A0209] font-medium">
+                  <button className="text-sm text-[#9B0310] hover:text-[#7A0209] font-medium cursor-pointer">
                     + Adicionar Item
                   </button>
                 </div>
@@ -119,7 +119,7 @@ export const CreateInvoicePage = () => {
                           <span className="text-sm font-medium text-gray-900">R$ 0,00</span>
                         </td>
                         <td className="px-4 py-3">
-                          <button className="text-red-500 hover:text-red-700">
+                          <button className="text-red-500 hover:text-red-700 cursor-pointer">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
@@ -186,10 +186,10 @@ export const CreateInvoicePage = () => {
             </div>
 
             <div className="space-y-3">
-              <button className="w-full px-4 py-3 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors font-medium">
+              <button className="w-full px-4 py-3 bg-[#9B0310] text-white rounded-lg hover:bg-[#7A0209] transition-colors font-medium cursor-pointer">
                 Gerar Fatura
               </button>
-              <button className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+              <button className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer">
                 Cancelar
               </button>
             </div>
