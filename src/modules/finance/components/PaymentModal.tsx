@@ -71,7 +71,7 @@ export const PaymentModal = ({ isOpen, onClose, onSuccess, receivable }: Payment
     setLoading(true);
     try {
       await registrarPagamentoReceber(receivable.id, {
-        valorPago: parseFloat(formData.valorPago),
+        valor: parseFloat(formData.valorPago),
         dataPagamento: formData.dataPagamento,
         formaPagamentoId: parseInt(formData.formaPagamentoId),
         contaBancariaId: parseInt(formData.contaBancariaId),

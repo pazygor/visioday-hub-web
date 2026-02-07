@@ -1,13 +1,36 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { Dialog } from 'primereact/dialog';
+import { InputText } from 'primereact/inputtext';
+import { InputNumber } from 'primereact/inputnumber';
+import { Dropdown } from 'primereact/dropdown';
+import { Calendar } from 'primereact/calendar';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { InputSwitch } from 'primereact/inputswitch';
+import { Button } from 'primereact/button';
+import { Divider } from 'primereact/divider';
+import { Accordion, AccordionTab } from 'primereact/accordion';
+import {
+  User, 
+  Briefcase, 
+  DollarSign, 
+  Home, 
+  Car, 
+  TrendingUp, 
+  Gift, 
+  FileText 
+} from 'lucide-react';
 import {
   createContaReceber,
   updateContaReceber,
   getCategorias,
   getClientes,
+  getContasBancarias,
+  getFormasPagamento,
   type FinanceContaReceber,
   type FinanceCategoria,
   type FinanceCliente,
+  type FinanceContaBancaria,
+  type FinanceFormaPagamento,
 } from '../../../services/api/finance.api';
 
 interface ReceivableModalProps {
@@ -17,19 +40,51 @@ interface ReceivableModalProps {
   receivable?: FinanceContaReceber | null;
 }
 
+// Tipos de receita com ícones
+const TIPOS_RECEITA = [
+  { value: 'CLIENTE', label: 'Cliente (B2B)', icon: <User className="w-4 h-4" /> },
+  { value: 'SALARIO', label: 'Salário', icon: <Briefcase className="w-4 h-4" /> },
+  { value: 'FREELANCE', label: 'Freelance/Autônomo', icon: <DollarSign className="w-4 h-4" /> },
+  { value: 'ALUGUEL', label: 'Aluguel Recebido', icon: <Home className="w-4 h-4" /> },
+  { value: 'VENDA', label: 'Venda de Bem', icon: <Car className="w-4 h-4" /> },
+  { value: 'INVESTIMENTO', label: 'Investimento Resgatado', icon: <TrendingUp className="w-4 h-4" /> },
+  { value: 'BONIFICACAO', label: 'Bonificação/Prêmio', icon: <Gift className="w-4 h-4" /> },
+  { value: 'OUTRO', label: 'Outro', icon: <FileText className="w-4 h-4" /> },
+];
+
+// Template para renderizar opções do dropdown com ícone
+const tipoReceitaTemplate = (option: typeof TIPOS_RECEITA[0]) => {
+  return (
+    <div className="flex items-center gap-2">
+      {option.icon}
+      <span>{option.label}</span>
+    </div>
+  );
+};
+
 export const ReceivableModal = ({ isOpen, onClose, onSuccess, receivable }: ReceivableModalProps) => {
   const [loading, setLoading] = useState(false);
   const [categorias, setCategorias] = useState<FinanceCategoria[]>([]);
   const [clientes, setClientes] = useState<FinanceCliente[]>([]);
+  const [contasBancarias, setContasBancarias] = useState<FinanceContaBancaria[]>([]);
+  const [formasPagamento, setFormasPagamento] = useState<FinanceFormaPagamento[]>([]);
+
   const [formData, setFormData] = useState({
+    tipo: 'CLIENTE',
     descricao: '',
-    valorTotal: '',
-    dataVencimento: '',
-    clienteId: '',
-    categoriaId: '',
+    valorTotal: 0,
+    dataEmissao: new Date(),
+    dataVencimento: new Date(),
+    clienteId: null as number | null,
+    categoriaId: null as number | null,
+    contaBancariaId: null as number | null,
+    formaPagamentoId: null as number | null,
+    numeroParcelas: 1,
+    numeroDocumento: '',
     observacoes: '',
     recorrente: false,
-    diaVencimentoRecorrente: '',
+    frequenciaRecorrencia: null as string | null,
+    diaVencimentoRecorrente: null as number | null,
   });
 
   useEffect(() => {
@@ -37,14 +92,40 @@ export const ReceivableModal = ({ isOpen, onClose, onSuccess, receivable }: Rece
       carregarDados();
       if (receivable) {
         setFormData({
+          tipo: (receivable as any).tipo || 'CLIENTE',
           descricao: receivable.descricao,
-          valorTotal: receivable.valorTotal.toString(),
-          dataVencimento: receivable.dataVencimento.split('T')[0],
-          clienteId: receivable.clienteId?.toString() || '',
-          categoriaId: receivable.categoriaId?.toString() || '',
+          valorTotal: Number(receivable.valorTotal),
+          dataEmissao: new Date(receivable.dataEmissao),
+          dataVencimento: new Date(receivable.dataVencimento),
+          clienteId: receivable.clienteId || null,
+          categoriaId: receivable.categoriaId || null,
+          contaBancariaId: receivable.contaBancariaId || null,
+          formaPagamentoId: receivable.formaPagamentoId || null,
+          numeroParcelas: receivable.numeroParcelas || 1,
+          numeroDocumento: (receivable as any).numeroDocumento || '',
           observacoes: receivable.observacoes || '',
           recorrente: receivable.recorrente || false,
-          diaVencimentoRecorrente: receivable.diaVencimentoRecorrente?.toString() || '',
+          frequenciaRecorrencia: receivable.frequenciaRecorrencia || null,
+          diaVencimentoRecorrente: receivable.diaVencimentoRecorrente || null,
+        });
+      } else {
+        // Reset form for new entry
+        setFormData({
+          tipo: 'CLIENTE',
+          descricao: '',
+          valorTotal: 0,
+          dataEmissao: new Date(),
+          dataVencimento: new Date(),
+          clienteId: null,
+          categoriaId: null,
+          contaBancariaId: null,
+          formaPagamentoId: null,
+          numeroParcelas: 1,
+          numeroDocumento: '',
+          observacoes: '',
+          recorrente: false,
+          frequenciaRecorrencia: null,
+          diaVencimentoRecorrente: null,
         });
       }
     }
@@ -52,31 +133,57 @@ export const ReceivableModal = ({ isOpen, onClose, onSuccess, receivable }: Rece
 
   const carregarDados = async () => {
     try {
-      const [categoriasRes, clientesRes] = await Promise.all([
+      const [categoriasRes, clientesRes, contasRes, formasRes] = await Promise.all([
         getCategorias('RECEITA'),
         getClientes(),
+        getContasBancarias(),
+        getFormasPagamento(),
       ]);
       setCategorias(categoriasRes);
       setClientes(clientesRes);
+      setContasBancarias(contasRes);
+      setFormasPagamento(formasRes);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+    // Validações
+    if (!formData.descricao.trim()) {
+      alert('Descrição é obrigatória');
+      return;
+    }
+
+    if (formData.tipo === 'CLIENTE' && !formData.clienteId) {
+      alert('Selecione um cliente para receitas do tipo Cliente');
+      return;
+    }
+
+    if (formData.valorTotal <= 0) {
+      alert('Valor deve ser maior que zero');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const data = {
+      const data: any = {
+        tipo: formData.tipo,
         descricao: formData.descricao,
-        valorTotal: parseFloat(formData.valorTotal),
-        dataVencimento: formData.dataVencimento,
-        clienteId: formData.clienteId ? parseInt(formData.clienteId) : undefined,
-        categoriaId: formData.categoriaId ? parseInt(formData.categoriaId) : undefined,
+        valorTotal: formData.valorTotal,
+        dataEmissao: formData.dataEmissao.toISOString(),
+        dataVencimento: formData.dataVencimento.toISOString(),
+        clienteId: formData.tipo === 'CLIENTE' ? formData.clienteId : undefined,
+        categoriaId: formData.categoriaId || undefined,
+        contaBancariaId: formData.contaBancariaId || undefined,
+        formaPagamentoId: formData.formaPagamentoId || undefined,
+        numeroParcelas: formData.numeroParcelas,
+        numeroDocumento: formData.numeroDocumento || undefined,
         observacoes: formData.observacoes || undefined,
         recorrente: formData.recorrente,
-        diaVencimentoRecorrente: formData.diaVencimentoRecorrente ? parseInt(formData.diaVencimentoRecorrente) : undefined,
+        frequenciaRecorrencia: formData.recorrente ? (formData.frequenciaRecorrencia || 'MENSAL') : undefined,
+        diaVencimentoRecorrente: formData.recorrente ? formData.diaVencimentoRecorrente : undefined,
       };
 
       if (receivable) {
@@ -86,7 +193,7 @@ export const ReceivableModal = ({ isOpen, onClose, onSuccess, receivable }: Rece
       }
 
       onSuccess();
-      handleClose();
+      onClose();
     } catch (error) {
       console.error('Erro ao salvar conta:', error);
       alert('Erro ao salvar conta a receber');
@@ -95,187 +202,374 @@ export const ReceivableModal = ({ isOpen, onClose, onSuccess, receivable }: Rece
     }
   };
 
-  const handleClose = () => {
-    setFormData({
-      descricao: '',
-      valorTotal: '',
-      dataVencimento: '',
-      clienteId: '',
-      categoriaId: '',
-      observacoes: '',
-      recorrente: false,
-      diaVencimentoRecorrente: '',
-    });
-    onClose();
-  };
-
-  if (!isOpen) return null;
+  const footerContent = (
+    <div className="flex justify-end gap-3 pt-4 border-t">
+      <Button
+        label="Cancelar"
+        icon="pi pi-times"
+        onClick={onClose}
+        className="p-button-text p-button-secondary"
+        disabled={loading}
+      />
+      <Button
+        label={receivable ? 'Atualizar' : 'Criar'}
+        icon={receivable ? 'pi pi-check' : 'pi pi-plus'}
+        onClick={handleSubmit}
+        loading={loading}
+        className="p-button-success"
+      />
+    </div>
+  );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {receivable ? 'Editar Conta a Receber' : 'Nova Conta a Receber'}
-          </h2>
-          <button
-            onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
+    <Dialog
+      header={
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+            <DollarSign className="w-5 h-5 text-green-600" />
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900">
+              {receivable ? 'Editar Conta a Receber' : 'Nova Conta a Receber'}
+            </h3>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {receivable ? 'Atualize as informações da receita' : 'Registre uma nova receita no sistema'}
+            </p>
+          </div>
+        </div>
+      }
+      visible={isOpen}
+      onHide={onClose}
+      style={{ width: '700px', maxWidth: '95vw' }}
+      breakpoints={{ '960px': '85vw', '641px': '95vw' }}
+      footer={footerContent}
+      modal
+      draggable={false}
+      resizable={false}
+      className="p-dialog-custom"
+    >
+      <div className="flex flex-col gap-6 p-1">
+        {/* Seção: Tipo de Receita */}
+        <div className="bg-linear-to-br from-green-50 to-emerald-50 p-5 rounded-lg border border-green-200">
+          <label htmlFor="tipo" className="block text-sm font-semibold text-gray-700 mb-3">
+            <span className="flex items-center gap-2">
+              Tipo de Receita <span className="text-red-500">*</span>
+              <span className="text-xs font-normal text-gray-500">(Selecione a origem da receita)</span>
+            </span>
+          </label>
+          <Dropdown
+            id="tipo"
+            value={formData.tipo}
+            options={TIPOS_RECEITA}
+            onChange={(e) => setFormData({ ...formData, tipo: e.value, clienteId: e.value !== 'CLIENTE' ? null : formData.clienteId })}
+            optionLabel="label"
+            optionValue="value"
+            itemTemplate={tipoReceitaTemplate}
+            valueTemplate={(option) => {
+              if (option) {
+                const selected = TIPOS_RECEITA.find(t => t.value === option);
+                return selected ? tipoReceitaTemplate(selected) : null;
+              }
+              return <span>Selecione o tipo</span>;
+            }}
+            placeholder="Selecione o tipo de receita"
+            className="w-full"
+            panelClassName="tipo-receita-panel"
+          />
+          <div className="mt-3 flex items-start gap-2 bg-white/60 rounded-md p-3 border border-green-100">
+            <i className="pi pi-info-circle text-green-600 text-sm mt-0.5"></i>
+            <small className="text-xs text-gray-600 leading-relaxed">
+              {formData.tipo === 'CLIENTE' && '💼 Para faturamento de clientes B2B e serviços prestados'}
+              {formData.tipo === 'SALARIO' && '💰 Para salário recebido de empregador'}
+              {formData.tipo === 'FREELANCE' && '👨‍💻 Para trabalhos autônomos e projetos freelance'}
+              {formData.tipo === 'ALUGUEL' && '🏠 Para aluguel de imóveis ou propriedades'}
+              {formData.tipo === 'VENDA' && '🚗 Para venda de bens móveis (carro, móveis, equipamentos)'}
+              {formData.tipo === 'INVESTIMENTO' && '📈 Para resgate de investimentos ou dividendos'}
+              {formData.tipo === 'BONIFICACAO' && '🎁 Para bônus, premiações e bonificações'}
+              {formData.tipo === 'OUTRO' && '📝 Para outros tipos de receita não categorizados'}
+            </small>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Cliente */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Cliente
+        {/* Cliente Condicional */}
+        {formData.tipo === 'CLIENTE' && (
+          <>
+            <Divider className="my-2" />
+            <div className="flex flex-col gap-2">
+              <label htmlFor="cliente" className="text-sm font-semibold text-gray-700">
+                Cliente <span className="text-red-500">*</span>
               </label>
-              <select
+              <Dropdown
+                id="cliente"
                 value={formData.clienteId}
-                onChange={(e) => setFormData({ ...formData, clienteId: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              >
-                <option value="">Selecione um cliente</option>
-                {clientes.map((cliente) => (
-                  <option key={cliente.id} value={cliente.id}>
-                    {cliente.nome}
-                  </option>
-                ))}
-              </select>
+                options={clientes}
+                onChange={(e) => setFormData({ ...formData, clienteId: e.value })}
+                optionLabel="nome"
+                optionValue="id"
+                placeholder="Selecione um cliente"
+                filter
+                filterPlaceholder="Buscar cliente..."
+                emptyMessage="Nenhum cliente encontrado"
+                className="w-full"
+              />
             </div>
+          </>
+        )}
 
-            {/* Categoria */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Categoria
-              </label>
-              <select
-                value={formData.categoriaId}
-                onChange={(e) => setFormData({ ...formData, categoriaId: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              >
-                <option value="">Selecione uma categoria</option>
-                {categorias.map((categoria) => (
-                  <option key={categoria.id} value={categoria.id}>
-                    {categoria.nome}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+        <Divider className="my-2" />
 
+        {/* Informações Principais */}
+        <div className="flex flex-col gap-4">
           {/* Descrição */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Descrição *
+          <div className="flex flex-col gap-2">
+            <label htmlFor="descricao" className="text-sm font-semibold text-gray-700">
+              Descrição <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              required
+            <InputText
+              id="descricao"
               value={formData.descricao}
               onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="Ex: Pagamento de serviços prestados"
+              placeholder="Ex: Desenvolvimento de Website, Salário Janeiro 2026..."
+              className="w-full"
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Valor */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Valor Total *
+          {/* Valor e Parcelas */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="valorTotal" className="text-sm font-semibold text-gray-700">
+                Valor Total <span className="text-red-500">*</span>
               </label>
-              <input
-                type="number"
-                required
-                step="0.01"
-                min="0"
+              <InputNumber
+                id="valorTotal"
                 value={formData.valorTotal}
-                onChange={(e) => setFormData({ ...formData, valorTotal: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="0,00"
+                onValueChange={(e) => setFormData({ ...formData, valorTotal: e.value || 0 })}
+                mode="currency"
+                currency="BRL"
+                locale="pt-BR"
+                minFractionDigits={2}
+                className="w-full"
+                inputClassName="text-lg font-semibold"
               />
             </div>
 
-            {/* Data de Vencimento */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Data de Vencimento *
+            <div className="flex flex-col gap-2">
+              <label htmlFor="parcelas" className="text-sm font-semibold text-gray-700">
+                Parcelas
               </label>
-              <input
-                type="date"
-                required
-                value={formData.dataVencimento}
-                onChange={(e) => setFormData({ ...formData, dataVencimento: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              <InputNumber
+                id="parcelas"
+                value={formData.numeroParcelas}
+                onValueChange={(e) => setFormData({ ...formData, numeroParcelas: e.value || 1 })}
+                min={1}
+                max={12}
+                showButtons
+                buttonLayout="horizontal"
+                decrementButtonClassName="p-button-outlined"
+                incrementButtonClassName="p-button-outlined"
+                className="w-full"
               />
             </div>
           </div>
 
-          {/* Recorrência */}
-          <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.recorrente}
-                onChange={(e) => setFormData({ ...formData, recorrente: e.target.checked })}
-                className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+          {/* Datas */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="dataEmissao" className="text-sm font-semibold text-gray-700">
+                Data de Emissão
+              </label>
+              <Calendar
+                id="dataEmissao"
+                value={formData.dataEmissao}
+                onChange={(e) => setFormData({ ...formData, dataEmissao: e.value as Date })}
+                dateFormat="dd/mm/yy"
+                showIcon
+                locale="pt-BR"
+                className="w-full"
               />
-              <span className="text-sm font-medium text-gray-700">Recorrente (mensal)</span>
-            </label>
+            </div>
 
-            {formData.recorrente && (
-              <div className="flex items-center gap-2">
-                <label className="text-sm text-gray-700">Dia do vencimento:</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="31"
-                  value={formData.diaVencimentoRecorrente}
-                  onChange={(e) => setFormData({ ...formData, diaVencimentoRecorrente: e.target.value })}
-                  className="w-20 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="5"
+            <div className="flex flex-col gap-2">
+              <label htmlFor="dataVencimento" className="text-sm font-semibold text-gray-700">
+                Vencimento <span className="text-red-500">*</span>
+              </label>
+              <Calendar
+                id="dataVencimento"
+                value={formData.dataVencimento}
+                onChange={(e) => setFormData({ ...formData, dataVencimento: e.value as Date })}
+                dateFormat="dd/mm/yy"
+                showIcon
+                minDate={new Date()}
+                locale="pt-BR"
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          {/* Categoria */}
+          <div className="flex flex-col gap-2">
+            <label htmlFor="categoria" className="text-sm font-semibold text-gray-700">
+              Categoria
+            </label>
+            <Dropdown
+              id="categoria"
+              value={formData.categoriaId}
+              options={categorias}
+              onChange={(e) => setFormData({ ...formData, categoriaId: e.value })}
+              optionLabel="nome"
+              optionValue="id"
+              placeholder="Selecione uma categoria"
+              filter
+              showClear
+              emptyMessage="Nenhuma categoria encontrada"
+              className="w-full"
+            />
+          </div>
+        </div>
+
+        {/* Opções Avançadas */}
+        <Accordion className="mt-2">
+          <AccordionTab 
+            header={
+              <span className="flex items-center gap-2 font-semibold">
+                <i className="pi pi-cog"></i>
+                Opções Avançadas
+              </span>
+            }
+          >
+            <div className="flex flex-col gap-4 pt-4">
+              {/* Forma de Pagamento */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="formaPagamento" className="text-sm font-semibold text-gray-700">
+                  Forma de Pagamento
+                </label>
+                <Dropdown
+                  id="formaPagamento"
+                  value={formData.formaPagamentoId}
+                  options={formasPagamento}
+                  onChange={(e) => setFormData({ ...formData, formaPagamentoId: e.value })}
+                  optionLabel="nome"
+                  optionValue="id"
+                  placeholder="Selecione a forma de pagamento"
+                  showClear
+                  className="w-full"
                 />
               </div>
-            )}
-          </div>
 
-          {/* Observações */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Observações
-            </label>
-            <textarea
-              value={formData.observacoes}
-              onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="Informações adicionais..."
-            />
-          </div>
+              {/* Conta Bancária */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="contaBancaria" className="text-sm font-semibold text-gray-700">
+                  Conta Bancária (destino)
+                </label>
+                <Dropdown
+                  id="contaBancaria"
+                  value={formData.contaBancariaId}
+                  options={contasBancarias}
+                  onChange={(e) => setFormData({ ...formData, contaBancariaId: e.value })}
+                  optionLabel="banco"
+                  optionValue="id"
+                  placeholder="Selecione a conta bancária"
+                  showClear
+                  itemTemplate={(option) => (
+                    <div className="flex flex-col gap-1 py-2">
+                      <div className="font-semibold text-gray-900">{option.banco}</div>
+                      <small className="text-gray-500">
+                        Ag {option.agencia} • Conta {option.conta}
+                      </small>
+                    </div>
+                  )}
+                  valueTemplate={(option) => {
+                    if (option) {
+                      const conta = contasBancarias.find(c => c.id === option);
+                      return conta ? `${conta.banco} - Ag ${conta.agencia} | Conta ${conta.conta}` : '';
+                    }
+                    return 'Selecione a conta';
+                  }}
+                  className="w-full"
+                />
+              </div>
 
-          {/* Botões */}
-          <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {loading ? 'Salvando...' : receivable ? 'Atualizar' : 'Criar'}
-            </button>
-          </div>
-        </form>
+              {/* Número do Documento */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="numeroDocumento" className="text-sm font-semibold text-gray-700">
+                  Número do Documento
+                  <span className="text-xs font-normal text-gray-500 ml-2">(NF, Recibo, Boleto)</span>
+                </label>
+                <InputText
+                  id="numeroDocumento"
+                  value={formData.numeroDocumento}
+                  onChange={(e) => setFormData({ ...formData, numeroDocumento: e.target.value })}
+                  placeholder="Ex: NF 12345, Recibo 001/2026"
+                  className="w-full"
+                />
+              </div>
+
+              {/* Recorrência */}
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <InputSwitch
+                      checked={formData.recorrente}
+                      onChange={(e) => setFormData({ 
+                        ...formData, 
+                        recorrente: e.value,
+                        frequenciaRecorrencia: e.value ? 'MENSAL' : null,
+                        diaVencimentoRecorrente: e.value ? formData.dataVencimento.getDate() : null
+                      })}
+                    />
+                    <div>
+                      <label className="font-semibold text-gray-900 text-sm">
+                        Receita Recorrente
+                      </label>
+                      <p className="text-xs text-gray-600 mt-0.5">
+                        Será gerada automaticamente todo mês
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {formData.recorrente && (
+                  <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-blue-200">
+                    <label htmlFor="diaVencimento" className="text-sm font-semibold text-gray-700">
+                      Dia do Vencimento
+                    </label>
+                    <InputNumber
+                      id="diaVencimento"
+                      value={formData.diaVencimentoRecorrente}
+                      onValueChange={(e) => setFormData({ ...formData, diaVencimentoRecorrente: e.value || null })}
+                      min={1}
+                      max={31}
+                      showButtons
+                      className="w-full"
+                    />
+                    <small className="text-xs text-blue-700 flex items-start gap-2 mt-2">
+                      <i className="pi pi-calendar text-xs mt-0.5"></i>
+                      <span>
+                        Esta receita será criada automaticamente todo dia <strong>{formData.diaVencimentoRecorrente}</strong> de cada mês
+                      </span>
+                    </small>
+                  </div>
+                )}
+              </div>
+
+              {/* Observações */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="observacoes" className="text-sm font-semibold text-gray-700">
+                  Observações
+                </label>
+                <InputTextarea
+                  id="observacoes"
+                  value={formData.observacoes}
+                  onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                  rows={4}
+                  placeholder="Informações adicionais sobre esta receita..."
+                  className="w-full"
+                />
+              </div>
+            </div>
+          </AccordionTab>
+        </Accordion>
       </div>
-    </div>
+    </Dialog>
   );
 };

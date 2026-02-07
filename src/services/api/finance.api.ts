@@ -88,8 +88,10 @@ export interface FinanceContaReceber {
   dataPagamento?: string;
   status: string;
   numeroParcelas: number;
+  numeroDocumento?: string;
   recorrente: boolean;
   frequenciaRecorrencia?: string;
+  diaVencimentoRecorrente?: number;
   observacoes?: string;
   clienteId?: number;
   categoriaId?: number;
@@ -339,7 +341,16 @@ export const updateContaReceber = (id: number, data: any) => {
   return authClient().patch<FinanceContaReceber>(`/finance/contas-receber/${id}`, data);
 };
 
-export const registrarPagamentoReceber = (id: number, data: { valor: number; dataPagamento: string }) => {
+export const registrarPagamentoReceber = (
+  id: number, 
+  data: { 
+    valor: number; 
+    dataPagamento: string;
+    formaPagamentoId?: number;
+    contaBancariaId?: number;
+    observacoes?: string;
+  }
+) => {
   return authClient().post<FinanceContaReceber>(`/finance/contas-receber/${id}/pagamento`, data);
 };
 
