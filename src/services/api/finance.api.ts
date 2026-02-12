@@ -107,6 +107,10 @@ export interface FinanceContaReceber {
 
 export interface FinanceContaPagar {
   id: number;
+  fornecedorId?: number;
+  categoriaId?: number;
+  contaBancariaId?: number;
+  formaPagamentoId?: number;
   descricao: string;
   valorTotal: number;
   valorPago: number;
@@ -116,6 +120,7 @@ export interface FinanceContaPagar {
   dataPagamento?: string;
   status: string;
   numeroParcelas: number;
+  numeroDocumento?: string;
   recorrente: boolean;
   frequenciaRecorrencia?: string;
   observacoes?: string;
