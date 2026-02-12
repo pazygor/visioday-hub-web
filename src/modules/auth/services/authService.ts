@@ -1,6 +1,7 @@
 import type {
   LoginRequest,
   LoginResponse,
+  SystemType,
   RegisterRequest,
   ForgotPasswordRequest,
   ResetPasswordRequest
@@ -17,7 +18,7 @@ const MOCK_USER = {
     name: 'Dayane Paz',
     email: 'dayane_paz@gmail.com',
     role: 'admin',
-    systems: ['digital', 'finance', 'academy'] // Usuário tem acesso aos 3 sistemas
+    systems: ['digital', 'finance', 'academy'] as SystemType[] // Usuário tem acesso aos 3 sistemas
   }
 }
 
@@ -77,7 +78,8 @@ export const authService = {
           id: Math.random().toString(36).substr(2, 9),
           name: data.name,
           email: data.email,
-          role: 'user'
+          role: 'user',
+          systems: ['finance']
         }
       }
     } else {

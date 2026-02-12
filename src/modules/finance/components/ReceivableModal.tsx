@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
@@ -32,6 +32,7 @@ import {
   type FinanceContaBancaria,
   type FinanceFormaPagamento,
 } from '../../../services/api/finance.api';
+import { ToastContext } from './FinanceLayout';
 
 interface ReceivableModalProps {
   isOpen: boolean;
@@ -63,6 +64,7 @@ const tipoReceitaTemplate = (option: typeof TIPOS_RECEITA[0]) => {
 };
 
 export const ReceivableModal = ({ isOpen, onClose, onSuccess, receivable }: ReceivableModalProps) => {
+  const toast = useContext(ToastContext);
   const [loading, setLoading] = useState(false);
   const [categorias, setCategorias] = useState<FinanceCategoria[]>([]);
   const [clientes, setClientes] = useState<FinanceCliente[]>([]);
@@ -92,7 +94,7 @@ export const ReceivableModal = ({ isOpen, onClose, onSuccess, receivable }: Rece
       carregarDados();
       if (receivable) {
         setFormData({
-          tipo: (receivable as any).tipo || 'CLIENTE',
+          tipo: receivable.tipo || 'CLIENTE',
           descricao: receivable.descricao,
           valorTotal: Number(receivable.valorTotal),
           dataEmissao: new Date(receivable.dataEmissao),
@@ -102,7 +104,7 @@ export const ReceivableModal = ({ isOpen, onClose, onSuccess, receivable }: Rece
           contaBancariaId: receivable.contaBancariaId || null,
           formaPagamentoId: receivable.formaPagamentoId || null,
           numeroParcelas: receivable.numeroParcelas || 1,
-          numeroDocumento: (receivable as any).numeroDocumento || '',
+          numeroDocumento: receivable.numeroDocumento || '',
           observacoes: receivable.observacoes || '',
           recorrente: receivable.recorrente || false,
           frequenciaRecorrencia: receivable.frequenciaRecorrencia || null,
@@ -151,17 +153,17 @@ export const ReceivableModal = ({ isOpen, onClose, onSuccess, receivable }: Rece
   const handleSubmit = async () => {
     // Validações
     if (!formData.descricao.trim()) {
-      alert('Descrição é obrigatória');
+      toast?.current?.show({ severity: 'warn', summary: 'Atenção', detail: 'Descrição é obrigatória', life: 3000 });
       return;
     }
 
     if (formData.tipo === 'CLIENTE' && !formData.clienteId) {
-      alert('Selecione um cliente para receitas do tipo Cliente');
+      toast?.current?.show({ severity: 'warn', summary: 'Atenção', detail: 'Selecione um cliente para receitas do tipo Cliente', life: 3000 });
       return;
     }
 
     if (formData.valorTotal <= 0) {
-      alert('Valor deve ser maior que zero');
+      toast?.current?.show({ severity: 'warn', summary: 'Atenção', detail: 'Valor deve ser maior que zero', life: 3000 });
       return;
     }
 
@@ -188,15 +190,17 @@ export const ReceivableModal = ({ isOpen, onClose, onSuccess, receivable }: Rece
 
       if (receivable) {
         await updateContaReceber(receivable.id, data);
+        toast?.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Conta a receber atualizada com sucesso', life: 3000 });
       } else {
         await createContaReceber(data);
+        toast?.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Conta a receber criada com sucesso', life: 3000 });
       }
 
       onSuccess();
       onClose();
     } catch (error) {
       console.error('Erro ao salvar conta:', error);
-      alert('Erro ao salvar conta a receber');
+      toast?.current?.show({ severity: 'error', summary: 'Erro', detail: 'Erro ao salvar conta a receber', life: 3000 });
     } finally {
       setLoading(false);
     }

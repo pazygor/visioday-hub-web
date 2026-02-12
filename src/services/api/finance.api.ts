@@ -79,6 +79,7 @@ export interface FinanceParcela {
 
 export interface FinanceContaReceber {
   id: number;
+  tipo: 'CLIENTE' | 'SALARIO' | 'FREELANCE' | 'ALUGUEL' | 'VENDA' | 'INVESTIMENTO' | 'BONIFICACAO' | 'OUTRO';
   descricao: string;
   valorTotal: number;
   valorPago: number;
@@ -338,7 +339,7 @@ export const createContaReceber = (data: any) => {
 };
 
 export const updateContaReceber = (id: number, data: any) => {
-  return authClient().patch<FinanceContaReceber>(`/finance/contas-receber/${id}`, data);
+  return authClient().put<FinanceContaReceber>(`/finance/contas-receber/${id}`, data);
 };
 
 export const registrarPagamentoReceber = (

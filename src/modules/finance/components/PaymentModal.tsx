@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { X, DollarSign } from 'lucide-react';
 import {
   registrarPagamentoReceber,
@@ -8,6 +8,7 @@ import {
   type FinanceFormaPagamento,
   type FinanceContaBancaria,
 } from '../../../services/api/finance.api';
+import { ToastContext } from './FinanceLayout';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ interface PaymentModalProps {
 }
 
 export const PaymentModal = ({ isOpen, onClose, onSuccess, receivable }: PaymentModalProps) => {
+  const toast = useContext(ToastContext);
   const [loading, setLoading] = useState(false);
   const [formasPagamento, setFormasPagamento] = useState<FinanceFormaPagamento[]>([]);
   const [contasBancarias, setContasBancarias] = useState<FinanceContaBancaria[]>([]);
@@ -33,10 +35,10 @@ export const PaymentModal = ({ isOpen, onClose, onSuccess, receivable }: Payment
       carregarDados();
       // Preenche com o valor restante a pagar
       const valorRestante = receivable.valorTotal - receivable.valorPago;
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         valorPago: valorRestante.toFixed(2),
-      });
+      }));
     }
   }, [isOpen, receivable]);
 
@@ -73,16 +75,17 @@ export const PaymentModal = ({ isOpen, onClose, onSuccess, receivable }: Payment
       await registrarPagamentoReceber(receivable.id, {
         valor: parseFloat(formData.valorPago),
         dataPagamento: formData.dataPagamento,
-        formaPagamentoId: parseInt(formData.formaPagamentoId),
-        contaBancariaId: parseInt(formData.contaBancariaId),
+        formaPagamentoId: formData.formaPagamentoId ? parseInt(formData.formaPagamentoId, 10) : undefined,
+        contaBancariaId: formData.contaBancariaId ? parseInt(formData.contaBancariaId, 10) : undefined,
         observacoes: formData.observacoes || undefined,
       });
 
+      toast?.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Pagamento registrado com sucesso', life: 3000 });
       onSuccess();
       handleClose();
     } catch (error) {
       console.error('Erro ao registrar pagamento:', error);
-      alert('Erro ao registrar pagamento');
+      toast?.current?.show({ severity: 'error', summary: 'Erro', detail: 'Erro ao registrar pagamento', life: 3000 });
     } finally {
       setLoading(false);
     }

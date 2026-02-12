@@ -1,14 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 import { 
-  Home, 
   DollarSign, 
-  TrendingDown, 
-  TrendingUp, 
-  Bell, 
-  Tag, 
   FileText, 
-  FilePlus,
   ChevronDown,
   ChevronRight,
   Settings, 
@@ -26,7 +21,7 @@ interface SidebarProps {
 interface MenuItem {
   id: string
   label: string
-  icon: JSX.Element
+  icon: ReactNode
   path?: string
   submenu?: {
     id: string

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import {
   Plus,
   Filter,
@@ -23,8 +23,11 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ReceivableModal } from '../components/ReceivableModal';
 import { PaymentModal } from '../components/PaymentModal';
+import { ToastContext } from '../components/FinanceLayout';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 
 export const ReceivablesPage = () => {
+  const toast = useContext(ToastContext);
   const [contas, setContas] = useState<FinanceContaReceber[]>([]);
   const [contasFiltradas, setContasFiltradas] = useState<FinanceContaReceber[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,7 +78,7 @@ export const ReceivablesPage = () => {
       setResumo(resumoRes);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
-      alert('Erro ao carregar contas a receber');
+      toast?.current?.show({ severity: 'error', summary: 'Erro', detail: 'Erro ao carregar contas a receber', life: 3000 });
     } finally {
       setLoading(false);
     }
@@ -167,16 +170,26 @@ export const ReceivablesPage = () => {
     setIsPaymentModalOpen(true);
   };
 
-  const handleExcluir = async (id: number, descricao: string) => {
-    if (!confirm(`Deseja realmente excluir a conta "${descricao}"?`)) return;
-
-    try {
-      await deleteContaReceber(id);
-      carregarDados();
-    } catch (error) {
-      console.error('Erro ao excluir conta:', error);
-      alert('Erro ao excluir conta a receber');
-    }
+  const handleExcluir = (id: number, descricao: string) => {
+    confirmDialog({
+      message: `Tem certeza que deseja excluir a conta "${descricao}"? Esta ação não pode ser desfeita.`,
+      header: 'Confirmar Exclusão',
+      icon: 'pi pi-exclamation-triangle',
+      defaultFocus: 'reject',
+      acceptLabel: 'Sim, excluir',
+      rejectLabel: 'Cancelar',
+      acceptClassName: 'p-button-danger',
+      accept: async () => {
+        try {
+          await deleteContaReceber(id);
+          toast?.current?.show({ severity: 'success', summary: 'Sucesso', detail: 'Conta a receber excluída com sucesso', life: 3000 });
+          carregarDados();
+        } catch (error) {
+          console.error('Erro ao excluir conta:', error);
+          toast?.current?.show({ severity: 'error', summary: 'Erro', detail: 'Erro ao excluir conta a receber', life: 3000 });
+        }
+      },
+    });
   };
 
   const getStatusColor = (status: string) => {
@@ -398,6 +411,16 @@ export const ReceivablesPage = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Data Fim</label>
+              <input
+                type="date"
+                value={filtros.dataFim}
+                onChange={(e) => setFiltros({ ...filtros, dataFim: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
           </div>
         )}
       </div>
@@ -563,6 +586,8 @@ export const ReceivablesPage = () => {
       </div>
 
       {/* Modals */}
+      <ConfirmDialog />
+      
       <ReceivableModal
         isOpen={isReceivableModalOpen}
         onClose={() => {
