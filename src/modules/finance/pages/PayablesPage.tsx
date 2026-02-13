@@ -301,7 +301,7 @@ export const PayablesPage = () => {
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2 cursor-pointer"
           >
             <Filter className="w-4 h-4" />
             Filtros
@@ -361,7 +361,7 @@ export const PayablesPage = () => {
             <div className="flex items-end gap-2">
               <button
                 onClick={limparFiltros}
-                className="w-full px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors border border-gray-300 rounded-lg"
+                className="w-full px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors border border-gray-300 rounded-lg cursor-pointer"
               >
                 Limpar
               </button>
@@ -461,7 +461,7 @@ export const PayablesPage = () => {
                         {conta.status !== 'PAGA' && (
                           <button
                             onClick={() => handleRegistrarPagamento(conta)}
-                            className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                            className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors cursor-pointer"
                             title="Registrar Pagamento"
                           >
                             <DollarSign className="w-4 h-4" />
@@ -469,14 +469,14 @@ export const PayablesPage = () => {
                         )}
                         <button
                           onClick={() => handleEditarConta(conta)}
-                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
                           title="Editar"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleExcluir(conta.id, conta.descricao)}
-                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                           title="Excluir"
                         >
                           <Trash2 className="w-4 h-4" />

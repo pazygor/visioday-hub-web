@@ -120,7 +120,7 @@ export const PaymentModal = ({ isOpen, onClose, onSuccess, receivable }: Payment
           </div>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>

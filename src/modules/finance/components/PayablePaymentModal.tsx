@@ -74,7 +74,7 @@ export const PayablePaymentModal = ({ isOpen, onClose, onSuccess, payable }: Pay
           <h2 className="text-xl font-semibold text-gray-900">Registrar Pagamento</h2>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -166,7 +166,7 @@ export const PayablePaymentModal = ({ isOpen, onClose, onSuccess, payable }: Pay
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
               disabled={loading}
             >
               Cancelar
@@ -174,7 +174,7 @@ export const PayablePaymentModal = ({ isOpen, onClose, onSuccess, payable }: Pay
             <button
               type="submit"
               disabled={loading || !formData.valorPago || parseFloat(formData.valorPago) <= 0}
-              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
