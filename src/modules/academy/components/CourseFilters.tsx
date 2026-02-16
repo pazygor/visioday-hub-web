@@ -1,10 +1,17 @@
 /**
  * VISIONDAY ACADEMY - COURSE FILTERS
- * Componente de filtros para o catálogo de cursos
+ * Componente de filtros para o catálogo de cursos com PrimeReact
  */
 
 import { useState, useEffect } from 'react';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal } from 'lucide-react';
+import { InputText } from 'primereact/inputtext';
+import { Dropdown } from 'primereact/dropdown';
+import { InputNumber } from 'primereact/inputnumber';
+import { Checkbox } from 'primereact/checkbox';
+import { Button } from 'primereact/button';
+import { Chip } from 'primereact/chip';
+import { Panel } from 'primereact/panel';
 import type { CursoFilterParams, AcademyCategoria } from '../types/academy.types';
 import { CursoNivel } from '../types/academy.types';
 import { getCategorias } from '@/services/api/academy.api';
@@ -36,29 +43,65 @@ export function CourseFilters({ filters, onFilterChange, onReset }: CourseFilter
     onFilterChange({ ...filters, busca, page: 1 });
   };
 
-  const handleCategoriaChange = (categoriaId: number | undefined) => {
-    onFilterChange({ ...filters, categoriaId, page: 1 });
+  const handleCategoriaChange = (categoriaId: number | null | undefined | 'ALL') => {
+    // Se for valor sentinela ou nulo, remove o filtro
+    const newCategoriaId = categoriaId === 'ALL' || categoriaId === null ? undefined : categoriaId;
+    onFilterChange({ ...filters, categoriaId: newCategoriaId, page: 1 });
   };
 
-  const handleNivelChange = (nivel: typeof CursoNivel[keyof typeof CursoNivel] | undefined) => {
-    onFilterChange({ ...filters, nivel, page: 1 });
+  const handleNivelChange = (nivel: typeof CursoNivel[keyof typeof CursoNivel] | null | undefined | '') => {
+    // Se for string vazia ou null, remove o filtro
+    const newNivel = nivel === '' || nivel === null ? undefined : nivel;
+    onFilterChange({ ...filters, nivel: newNivel, page: 1 });
   };
 
-  const handlePrecoChange = (precoMin: number | undefined, precoMax: number | undefined) => {
-    onFilterChange({ ...filters, precoMin, precoMax, page: 1 });
+  const handlePrecoMinChange = (value: number | null | undefined) => {
+    onFilterChange({
+      ...filters,
+      precoMin: value !== null && value !== undefined ? value : undefined,
+      page: 1,
+    });
   };
 
-  const handleGratuitoChange = (gratuito: boolean | undefined) => {
-    onFilterChange({ ...filters, gratuito, page: 1 });
+  const handlePrecoMaxChange = (value: number | null | undefined) => {
+    onFilterChange({
+      ...filters,
+      precoMax: value !== null && value !== undefined ? value : undefined,
+      page: 1,
+    });
   };
 
-  const handleDestaqueChange = (destaque: boolean | undefined) => {
-    onFilterChange({ ...filters, destaque, page: 1 });
+  const handleGratuitoChange = (checked: boolean) => {
+    onFilterChange({ ...filters, gratuito: checked || undefined, page: 1 });
+  };
+
+  const handleDestaqueChange = (checked: boolean) => {
+    onFilterChange({ ...filters, destaque: checked || undefined, page: 1 });
   };
 
   const handleSortChange = (ordenarPor: typeof filters.ordenarPor) => {
     onFilterChange({ ...filters, ordenarPor, page: 1 });
   };
+
+  const sortOptions = [
+    { label: 'Mais recentes', value: 'recente' },
+    { label: 'Mais populares', value: 'popular' },
+    { label: 'Melhor avaliados', value: 'avaliacao' },
+    { label: 'Ordem alfabética', value: 'titulo' },
+    { label: 'Menor preço', value: 'preco' },
+  ];
+
+  const categoriaOptions = [
+    { label: 'Todas as categorias', value: 'ALL' },
+    ...categorias.map((cat) => ({ label: cat.nome, value: cat.id })),
+  ];
+
+  const nivelOptions = [
+    { label: 'Todos os níveis', value: '' },
+    { label: 'Iniciante', value: CursoNivel.INICIANTE },
+    { label: 'Intermediário', value: CursoNivel.INTERMEDIARIO },
+    { label: 'Avançado', value: CursoNivel.AVANCADO },
+  ];
 
   const hasActiveFilters =
     filters.categoriaId ||
@@ -68,189 +111,270 @@ export function CourseFilters({ filters, onFilterChange, onReset }: CourseFilter
     filters.gratuito ||
     filters.destaque;
 
+  const activeFilterCount = [
+    filters.categoriaId,
+    filters.nivel,
+    filters.precoMin !== undefined || filters.precoMax !== undefined,
+    filters.gratuito,
+    filters.destaque,
+  ].filter(Boolean).length;
+
+  // Função para formatar o label do nível
+  const getNivelLabel = (nivel: string) => {
+    switch (nivel) {
+      case CursoNivel.INICIANTE:
+        return 'Iniciante';
+      case CursoNivel.INTERMEDIARIO:
+        return 'Intermediário';
+      case CursoNivel.AVANCADO:
+        return 'Avançado';
+      default:
+        return nivel;
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Barra de busca e ordenação */}
       <div className="flex flex-col sm:flex-row gap-3">
-        {/* Busca */}
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Buscar cursos..."
-            value={filters.busca || ''}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        {/* Busca com PrimeReact */}
+        <div className="flex-1">
+          <span className="p-input-icon-left w-full">
+            <Search className="w-4 h-4" />
+            <InputText
+              value={filters.busca || ''}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              placeholder="Buscar cursos..."
+              className="w-full"
+            />
+          </span>
+        </div>
+
+        {/* Ordenação com PrimeReact Dropdown */}
+        <div className="w-full sm:w-64">
+          <Dropdown
+            value={filters.ordenarPor || 'recente'}
+            options={sortOptions}
+            onChange={(e) => handleSortChange(e.value)}
+            placeholder="Ordenar por"
+            className="w-full"
           />
         </div>
 
-        {/* Ordenação */}
-        <select
-          value={filters.ordenarPor || 'recente'}
-          onChange={(e) => handleSortChange(e.target.value as typeof filters.ordenarPor)}
-          className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-        >
-          <option value="recente">Mais recentes</option>
-          <option value="popular">Mais populares</option>
-          <option value="avaliacao">Melhor avaliados</option>
-          <option value="titulo">Ordem alfabética</option>
-          <option value="preco">Menor preço</option>
-        </select>
-
         {/* Botão de filtros mobile */}
-        <button
+        <Button
+          label="Filtros"
+          icon="pi pi-filter"
           onClick={() => setShowFilters(!showFilters)}
-          className="sm:hidden flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-        >
-          <SlidersHorizontal className="w-5 h-5" />
-          <span>Filtros</span>
-          {hasActiveFilters && (
-            <span className="ml-1 px-2 py-0.5 text-xs bg-indigo-500 text-white rounded-full">
-              {[
-                filters.categoriaId,
-                filters.nivel,
-                filters.precoMin !== undefined || filters.precoMax !== undefined,
-                filters.gratuito,
-                filters.destaque,
-              ].filter(Boolean).length}
-            </span>
-          )}
-        </button>
+          className="sm:hidden"
+          badge={activeFilterCount > 0 ? activeFilterCount.toString() : undefined}
+          badgeClassName="p-badge-danger"
+        />
       </div>
 
-      {/* Filtros avançados */}
-      <div
-        className={`${
-          showFilters ? 'block' : 'hidden'
-        } sm:block space-y-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700`}
+      {/* Filtros avançados com Panel */}
+      <Panel
+        header={
+          <div 
+            className="flex items-center justify-between w-full cursor-pointer"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal className="w-5 h-5" />
+              <span className="font-medium">Filtros Avançados</span>
+              {activeFilterCount > 0 && (
+                <Chip
+                  label={`${activeFilterCount} ativo${activeFilterCount > 1 ? 's' : ''}`}
+                  className="p-chip-sm bg-indigo-100 text-indigo-700"
+                />
+              )}
+            </div>
+            {hasActiveFilters && (
+              <Button
+                label="Limpar filtros"
+                icon="pi pi-times"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onReset();
+                }}
+                className="p-button-text p-button-sm p-button-danger"
+                text
+              />
+            )}
+          </div>
+        }
+        toggleable
+        collapsed={!showFilters}
+        onToggle={(e) => setShowFilters(!e.value)}
+        className={showFilters ? '' : 'hidden sm:block'}
       >
-        <div className="flex items-center justify-between">
-          <h3 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
-            <SlidersHorizontal className="w-5 h-5" />
-            Filtros
-          </h3>
-          {hasActiveFilters && (
-            <button
-              onClick={onReset}
-              className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
-            >
-              <X className="w-4 h-4" />
-              Limpar filtros
-            </button>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-4">
           {/* Categoria */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Categoria
             </label>
-            <select
-              value={filters.categoriaId || ''}
-              onChange={(e) =>
-                handleCategoriaChange(e.target.value ? Number(e.target.value) : undefined)
-              }
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            >
-              <option value="">Todas</option>
-              {categorias.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.nome}
-                </option>
-              ))}
-            </select>
+            <Dropdown
+              value={filters.categoriaId ?? 'ALL'}
+              options={categoriaOptions}
+              optionLabel="label"
+              optionValue="value"
+              onChange={(e) => handleCategoriaChange(e.value)}
+              placeholder="Selecione"
+              className="w-full"
+              showClear={filters.categoriaId !== undefined}
+              filter
+              filterBy="label"
+              filterPlaceholder="Buscar categoria"
+            />
           </div>
 
           {/* Nível */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Nível
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Nível de Dificuldade
             </label>
-            <select
+            <Dropdown
               value={filters.nivel || ''}
-              onChange={(e) =>
-                handleNivelChange(
-                  e.target.value
-                    ? (e.target.value as typeof CursoNivel[keyof typeof CursoNivel])
-                    : undefined
-                )
-              }
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            >
-              <option value="">Todos</option>
-              <option value={CursoNivel.INICIANTE}>Iniciante</option>
-              <option value={CursoNivel.INTERMEDIARIO}>Intermediário</option>
-              <option value={CursoNivel.AVANCADO}>Avançado</option>
-            </select>
-          </div>
-
-          {/* Preço mínimo */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Preço mín.
-            </label>
-            <input
-              type="number"
-              min="0"
-              step="10"
-              placeholder="R$ 0"
-              value={filters.precoMin || ''}
-              onChange={(e) =>
-                handlePrecoChange(
-                  e.target.value ? Number(e.target.value) : undefined,
-                  filters.precoMax
-                )
-              }
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              options={nivelOptions}
+              optionLabel="label"
+              optionValue="value"
+              onChange={(e) => handleNivelChange(e.value)}
+              placeholder="Selecione"
+              className="w-full"
+              showClear={filters.nivel !== undefined}
             />
           </div>
 
-          {/* Preço máximo */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Preço máx.
+          {/* Preço Mínimo */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Preço Mínimo
             </label>
-            <input
-              type="number"
-              min="0"
-              step="10"
-              placeholder="R$ 999"
-              value={filters.precoMax || ''}
-              onChange={(e) =>
-                handlePrecoChange(
-                  filters.precoMin,
-                  e.target.value ? Number(e.target.value) : undefined
-                )
-              }
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            <InputNumber
+              value={filters.precoMin || null}
+              onValueChange={(e) => handlePrecoMinChange(e.value)}
+              mode="currency"
+              currency="BRL"
+              locale="pt-BR"
+              placeholder="R$ 0,00"
+              className="w-full"
+              min={0}
             />
+          </div>
+
+          {/* Preço Máximo */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Preço Máximo
+            </label>
+            <InputNumber
+              value={filters.precoMax || null}
+              onValueChange={(e) => handlePrecoMaxChange(e.value)}
+              mode="currency"
+              currency="BRL"
+              locale="pt-BR"
+              placeholder="R$ 1.000,00"
+              className="w-full"
+              min={0}
+            />
+          </div>
+
+          {/* Checkboxes - Gratuito e Destaque */}
+          <div className="flex flex-col gap-3 sm:col-span-2 lg:col-span-4">
+            <div className="flex flex-wrap gap-6">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  inputId="gratuito"
+                  checked={filters.gratuito || false}
+                  onChange={(e) => handleGratuitoChange(e.checked || false)}
+                />
+                <label
+                  htmlFor="gratuito"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer"
+                >
+                  Apenas cursos gratuitos
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  inputId="destaque"
+                  checked={filters.destaque || false}
+                  onChange={(e) => handleDestaqueChange(e.checked || false)}
+                />
+                <label
+                  htmlFor="destaque"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer"
+                >
+                  Em destaque
+                </label>
+              </div>
+            </div>
           </div>
         </div>
+      </Panel>
 
-        {/* Checkboxes */}
-        <div className="flex flex-wrap gap-4">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={filters.gratuito || false}
-              onChange={(e) => handleGratuitoChange(e.target.checked || undefined)}
-              className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+      {/* Tags de filtros ativos */}
+      {hasActiveFilters && (
+        <div className="flex flex-wrap gap-2">
+          {filters.categoriaId && (
+            <Chip
+              label={`Categoria: ${categorias.find((c) => c.id === filters.categoriaId)?.nome || 'Desconhecida'}`}
+              removable
+              onRemove={() => {
+                handleCategoriaChange(undefined);
+                return true;
+              }}
+              className="bg-blue-100 text-blue-700"
             />
-            <span className="text-sm text-gray-700 dark:text-gray-300">Apenas gratuitos</span>
-          </label>
-
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={filters.destaque || false}
-              onChange={(e) => handleDestaqueChange(e.target.checked || undefined)}
-              className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+          )}
+          {filters.nivel && (
+            <Chip
+              label={`Nível: ${getNivelLabel(filters.nivel)}`}
+              removable
+              onRemove={() => {
+                handleNivelChange(undefined);
+                return true;
+              }}
+              className="bg-green-100 text-green-700"
             />
-            <span className="text-sm text-gray-700 dark:text-gray-300">Em destaque</span>
-          </label>
+          )}
+          {(filters.precoMin !== undefined || filters.precoMax !== undefined) && (
+            <Chip
+              label={`Preço: R$ ${filters.precoMin || 0} - R$ ${filters.precoMax || '∞'}`}
+              removable
+              onRemove={() => {
+                onFilterChange({ ...filters, precoMin: undefined, precoMax: undefined, page: 1 });
+                return true;
+              }}
+              className="bg-purple-100 text-purple-700"
+            />
+          )}
+          {filters.gratuito && (
+            <Chip
+              label="Gratuito"
+              removable
+              onRemove={() => {
+                handleGratuitoChange(false);
+                return true;
+              }}
+              className="bg-emerald-100 text-emerald-700"
+            />
+          )}
+          {filters.destaque && (
+            <Chip
+              label="Em destaque"
+              removable
+              onRemove={() => {
+                handleDestaqueChange(false);
+                return true;
+              }}
+              className="bg-amber-100 text-amber-700"
+            />
+          )}
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -1,10 +1,11 @@
 /**
  * VISIONDAY ACADEMY - CATALOG PAGE
- * Página de catálogo de cursos com filtros e paginação
+ * Página de catálogo de cursos com filtros e paginação (PrimeReact)
  */
 
 import { useState, useEffect } from 'react';
 import { Loader2, BookOpen, AlertCircle } from 'lucide-react';
+import { Paginator } from 'primereact/paginator';
 import { CourseCard } from '../components/CourseCard';
 import { CourseFilters } from '../components/CourseFilters';
 import type { AcademyCurso, CursoFilterParams, PaginatedResponse } from '../types/academy.types';
@@ -150,58 +151,18 @@ export function CatalogPage() {
               ))}
             </div>
 
-            {/* Paginação */}
+            {/* Paginação com PrimeReact */}
             {pagination.totalPages > 1 && (
-              <div className="mt-8 flex items-center justify-center gap-2">
-                <button
-                  onClick={() => handlePageChange(pagination.page - 1)}
-                  disabled={pagination.page === 1}
-                  className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Anterior
-                </button>
-
-                <div className="flex items-center gap-2">
-                  {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                    .filter((page) => {
-                      // Mostra primeira, última, atual e vizinhas
-                      return (
-                        page === 1 ||
-                        page === pagination.totalPages ||
-                        Math.abs(page - pagination.page) <= 1
-                      );
-                    })
-                    .map((page, index, array) => {
-                      // Adiciona "..." entre páginas não consecutivas
-                      const showEllipsis = index > 0 && page - array[index - 1] > 1;
-
-                      return (
-                        <div key={page} className="flex items-center gap-2">
-                          {showEllipsis && (
-                            <span className="text-gray-400 dark:text-gray-600">...</span>
-                          )}
-                          <button
-                            onClick={() => handlePageChange(page)}
-                            className={`w-10 h-10 rounded-lg transition-colors ${
-                              page === pagination.page
-                                ? 'bg-indigo-600 text-white'
-                                : 'border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                            }`}
-                          >
-                            {page}
-                          </button>
-                        </div>
-                      );
-                    })}
-                </div>
-
-                <button
-                  onClick={() => handlePageChange(pagination.page + 1)}
-                  disabled={pagination.page === pagination.totalPages}
-                  className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Próxima
-                </button>
+              <div className="mt-8">
+                <Paginator
+                  first={(pagination.page - 1) * pagination.limit}
+                  rows={pagination.limit}
+                  totalRecords={pagination.total}
+                  onPageChange={(e) => handlePageChange(e.page + 1)}
+                  template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                  currentPageReportTemplate="Mostrando {first} - {last} de {totalRecords} cursos"
+                  className="border-t border-gray-200 dark:border-gray-700"
+                />
               </div>
             )}
           </>
