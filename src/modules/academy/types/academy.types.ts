@@ -173,18 +173,17 @@ export interface AcademyMatricula {
   usuarioId: number;
   cursoId: number;
   status: MatriculaStatus;
-  progresso: number;
-  dataInicio: string;
-  dataFim: string | null;
+  dataMatricula: string;
+  dataInicio: string | null;
   dataConclusao: string | null;
-  avaliacaoId: number | null;
-  certificadoId: number | null;
-  createdAt: string;
-  updatedAt: string;
+  progressoGeral: number; // 0-100
+  tempoAssistido: number; // em segundos
+  ultimaAulaId: number | null;
+  favorito: boolean;
   
   // Relacionamentos
   curso?: AcademyCurso;
-  avaliacao?: AcademyAvaliacao;
+  progressos?: AcademyProgresso[];
   certificado?: AcademyCertificado;
 }
 
@@ -196,9 +195,11 @@ export interface AcademyProgresso {
   id: number;
   matriculaId: number;
   aulaId: number;
-  concluida: boolean;
-  tempoAssistido: number;
-  ultimaVisualizacao: string;
+  concluido: boolean;
+  tempoAssistido: number; // em segundos
+  ultimaPosicao: number; // posição do vídeo em segundos
+  dataInicio: string | null;
+  dataConclusao: string | null;
   createdAt: string;
   updatedAt: string;
   
@@ -293,10 +294,73 @@ export interface CreateMatriculaDto {
   cursoId: number;
 }
 
+export interface UpdateMatriculaDto {
+  favorito?: boolean;
+}
+
+export interface MatriculaStatsDto {
+  cursosEmAndamento: number;
+  cursosConcluidos: number;
+  horasAssistidas: number;
+  certificadosObtidos: number;
+  progressoMedio: number;
+}
+
+export interface ContinueWatchingDto {
+  matriculaId: number;
+  cursoId: number;
+  cursoTitulo: string;
+  cursoThumbnail: string;
+  cursoSlug: string;
+  progressoGeral: number;
+  ultimaAulaId: number | null;
+  ultimaAulaTitulo: string | null;
+  dataUltimoAcesso: string;
+}
+
 export interface UpdateProgressoDto {
   aulaId: number;
-  concluida: boolean;
+  ultimaPosicao?: number;
+  tempoAssistido?: number;
+  concluido?: boolean;
+}
+
+export interface ProgressoResponseDto {
+  aulaId: number;
+  concluido: boolean;
   tempoAssistido: number;
+  ultimaPosicao: number;
+  dataInicio: string | null;
+  dataConclusao: string | null;
+}
+
+export interface CursoProgressoDto {
+  matriculaId: number;
+  cursoId: number;
+  progressoGeral: number;
+  totalAulas: number;
+  aulasCompletas: number;
+  tempoAssistido: number;
+  aulas: ProgressoAulaDto[];
+}
+
+export interface ProgressoAulaDto {
+  aulaId: number;
+  moduloId: number;
+  moduloTitulo: string;
+  aulaTitulo: string;
+  concluido: boolean;
+  ultimaPosicao: number;
+  ordem: number;
+}
+
+export interface ProximaAulaDto {
+  aulaId: number;
+  moduloId: number;
+  titulo: string;
+  tipo: string;
+  duracao: number | null;
+  conteudoUrl: string | null;
 }
 
 export interface CreateAvaliacaoDto {

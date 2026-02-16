@@ -15,11 +15,17 @@ import type {
   CursoFilterParams,
   PaginatedResponse,
   CreateMatriculaDto,
+  UpdateMatriculaDto,
   UpdateProgressoDto,
   CreateAvaliacaoDto,
   CreateAnotacaoDto,
   CourseDetailsData,
   StudentProgress,
+  MatriculaStatsDto,
+  ContinueWatchingDto,
+  ProgressoResponseDto,
+  CursoProgressoDto,
+  ProximaAulaDto,
 } from '@/modules/academy/types/academy.types';
 
 const BASE_PATH = '/academy';
@@ -116,8 +122,47 @@ export async function enrollCourse(data: CreateMatriculaDto): Promise<AcademyMat
 /**
  * Lista matrículas do usuário logado
  */
-export async function getMyEnrollments(): Promise<AcademyMatricula[]> {
-  return httpClient.get<AcademyMatricula[]>(`${BASE_PATH}/matriculas/minhas`);
+export async function getMyEnrollments(
+  status?: string,
+  favorito?: boolean
+): Promise<AcademyMatricula[]> {
+  const params = new URLSearchParams();
+  if (status) params.append('status', status);
+  if (favorito !== undefined) params.append('favorito', favorito.toString());
+  
+  const queryString = params.toString();
+  const url = `${BASE_PATH}/matriculas${queryString ? `?${queryString}` : ''}`;
+  
+  return httpClient.get<AcademyMatricula[]>(url);
+}
+
+/**
+ * Busca estatísticas do usuário
+ */
+export async function getMatriculaStats(): Promise<MatriculaStatsDto> {
+  return httpClient.get<MatriculaStatsDto>(`${BASE_PATH}/matriculas/stats`);
+}
+
+/**
+ * Busca cursos para continuar assistindo
+ */
+export async function getContinueWatching(limit?: number): Promise<ContinueWatchingDto[]> {
+  const params = limit ? `?limit=${limit}` : '';
+  return httpClient.get<ContinueWatchingDto[]>(`${BASE_PATH}/matriculas/continue-watching${params}`);
+}
+
+/**
+ * Verifica se está matriculado em um curso
+ */
+export async function checkEnrollment(cursoId: number): Promise<{ isEnrolled: boolean }> {
+  return httpClient.get<{ isEnrolled: boolean }>(`${BASE_PATH}/matriculas/check/${cursoId}`);
+}
+
+/**
+ * Busca matrícula por curso
+ */
+export async function getEnrollmentByCourse(cursoId: number): Promise<AcademyMatricula> {
+  return httpClient.get<AcademyMatricula>(`${BASE_PATH}/matriculas/curso/${cursoId}`);
 }
 
 /**
@@ -125,6 +170,16 @@ export async function getMyEnrollments(): Promise<AcademyMatricula[]> {
  */
 export async function getEnrollmentById(id: number): Promise<AcademyMatricula> {
   return httpClient.get<AcademyMatricula>(`${BASE_PATH}/matriculas/${id}`);
+}
+
+/**
+ * Atualiza matrícula (favorito)
+ */
+export async function updateEnrollment(
+  id: number,
+  data: UpdateMatriculaDto
+): Promise<AcademyMatricula> {
+  return httpClient.patch<AcademyMatricula>(`${BASE_PATH}/matriculas/${id}`, data);
 }
 
 /**
@@ -144,19 +199,10 @@ export async function cancelEnrollment(id: number): Promise<void> {
 export async function updateProgress(
   matriculaId: number,
   data: UpdateProgressoDto
-): Promise<AcademyProgresso> {
-  return httpClient.post<AcademyProgresso>(
-    `${BASE_PATH}/matriculas/${matriculaId}/progresso`,
+): Promise<ProgressoResponseDto> {
+  return httpClient.post<ProgressoResponseDto>(
+    `${BASE_PATH}/progresso/${matriculaId}`,
     data
-  );
-}
-
-/**
- * Busca progresso do aluno em um curso
- */
-export async function getStudentProgress(matriculaId: number): Promise<StudentProgress> {
-  return httpClient.get<StudentProgress>(
-    `${BASE_PATH}/matriculas/${matriculaId}/progresso`
   );
 }
 
@@ -166,10 +212,58 @@ export async function getStudentProgress(matriculaId: number): Promise<StudentPr
 export async function markLessonComplete(
   matriculaId: number,
   aulaId: number
-): Promise<AcademyProgresso> {
-  return httpClient.post<AcademyProgresso>(
-    `${BASE_PATH}/matriculas/${matriculaId}/aulas/${aulaId}/concluir`
+): Promise<ProgressoResponseDto> {
+  return httpClient.put<ProgressoResponseDto>(
+    `${BASE_PATH}/progresso/${matriculaId}/complete`,
+    { aulaId }
   );
+}
+
+/**
+ * Busca progresso completo de um curso
+ */
+export async function getCourseProgress(matriculaId: number): Promise<CursoProgressoDto> {
+  return httpClient.get<CursoProgressoDto>(
+    `${BASE_PATH}/progresso/${matriculaId}`
+  );
+}
+
+/**
+ * Busca progresso de uma aula específica
+ */
+export async function getLessonProgress(
+  matriculaId: number,
+  aulaId: number
+): Promise<ProgressoResponseDto | null> {
+  return httpClient.get<ProgressoResponseDto | null>(
+    `${BASE_PATH}/progresso/${matriculaId}/aula/${aulaId}`
+  );
+}
+
+/**
+ * Busca próxima aula a ser assistida
+ */
+export async function getNextLesson(matriculaId: number): Promise<ProximaAulaDto | null> {
+  return httpClient.get<ProximaAulaDto | null>(
+    `${BASE_PATH}/progresso/${matriculaId}/next-lesson`
+  );
+}
+
+/**
+ * Busca progresso do aluno em um curso (legacy - manter compatibilidade)
+ */
+export async function getStudentProgress(matriculaId: number): Promise<StudentProgress> {
+  const progresso = await getCourseProgress(matriculaId);
+  
+  return {
+    matriculaId: progresso.matriculaId,
+    cursoId: progresso.cursoId,
+    progresso: progresso.progressoGeral,
+    aulasCompletas: progresso.aulasCompletas,
+    totalAulas: progresso.totalAulas,
+    tempoTotal: progresso.tempoAssistido,
+    ultimaAula: null, // TODO: implementar se necessário
+  };
 }
 
 // ============================================

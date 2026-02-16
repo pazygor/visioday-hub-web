@@ -31,11 +31,15 @@ class HttpClient {
     try {
       const url = `${this.baseURL}${endpoint}`
       
+      // Obter token do localStorage
+      const token = localStorage.getItem('token')
+      
       const response = await fetch(url, {
         ...fetchOptions,
         signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` }),
           ...fetchOptions.headers,
         },
       })

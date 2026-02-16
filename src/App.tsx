@@ -37,8 +37,10 @@ import { AcademyLayout } from '@/modules/academy/components/AcademyLayout'
 import { 
   AcademyDashboardPage,
   CatalogPage,
-  CourseDetailsPage
+  CourseDetailsPage,
 } from '@/modules/academy/pages'
+import { MyCoursesPage } from '@/modules/academy/pages/MyCoursesPage'
+import { LessonPlayerPage } from '@/modules/academy/pages/LessonPlayerPage'
 
 function App() {
   return (
@@ -90,8 +92,9 @@ function App() {
                 <Route index element={<Navigate to="catalog" replace />} />
                 <Route path="dashboard" element={<AcademyDashboardPage />} />
                 <Route path="catalog" element={<CatalogPage />} />
-                <Route path="cursos/:slug" element={<CourseDetailsPage />} />
-                <Route path="courses" element={<div>Meus Cursos em breve</div>} />
+                <Route path="catalog/:slug" element={<CourseDetailsPage />} />
+                <Route path="courses" element={<MyCoursesPage />} />
+                <Route path="courses/:courseSlug/watch/:lessonId" element={<LessonPlayerPage />} />
                 <Route path="certificates" element={<div>Certificados em breve</div>} />
                 <Route path="schedule" element={<div>Agenda em breve</div>} />
                 <Route path="settings" element={<div>Configurações em breve</div>} />
