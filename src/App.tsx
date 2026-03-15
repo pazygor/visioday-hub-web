@@ -41,6 +41,7 @@ import {
 } from '@/modules/academy/pages'
 import { MyCoursesPage } from '@/modules/academy/pages/MyCoursesPage'
 import { LessonPlayerPage } from '@/modules/academy/pages/LessonPlayerPage'
+import { CertificatesPage } from '@/modules/academy/pages/CertificatesPage'
 
 function App() {
   return (
@@ -95,7 +96,7 @@ function App() {
                 <Route path="catalog/:slug" element={<CourseDetailsPage />} />
                 <Route path="courses" element={<MyCoursesPage />} />
                 <Route path="courses/:courseSlug/watch/:lessonId" element={<LessonPlayerPage />} />
-                <Route path="certificates" element={<div>Certificados em breve</div>} />
+                <Route path="certificates" element={<CertificatesPage />} />
                 <Route path="schedule" element={<div>Agenda em breve</div>} />
                 <Route path="settings" element={<div>Configurações em breve</div>} />
               </Route>

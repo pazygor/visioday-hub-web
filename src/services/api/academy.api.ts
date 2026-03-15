@@ -26,6 +26,9 @@ import type {
   ProgressoResponseDto,
   CursoProgressoDto,
   ProximaAulaDto,
+  DashboardStatsDto,
+  DashboardCourseDto,
+  RecommendedCourseDto,
 } from '@/modules/academy/types/academy.types';
 
 const BASE_PATH = '/academy';
@@ -439,4 +442,29 @@ export async function getStudentStats(): Promise<{
  */
 export async function getRecommendedCourses(): Promise<AcademyCurso[]> {
   return httpClient.get<AcademyCurso[]>(`${BASE_PATH}/cursos/recomendados`);
+}
+
+// ============================================
+// DASHBOARD
+// ============================================
+
+/**
+ * Buscar estatísticas do dashboard
+ */
+export async function getDashboardStats(): Promise<DashboardStatsDto> {
+  return httpClient.get(`${BASE_PATH}/dashboard/stats`);
+}
+
+/**
+ * Buscar cursos para continuar assistindo
+ */
+export async function getDashboardContinueWatching(limit: number = 4): Promise<DashboardCourseDto[]> {
+  return httpClient.get(`${BASE_PATH}/dashboard/continue-watching?limit=${limit}`);
+}
+
+/**
+ * Buscar cursos recomendados
+ */
+export async function getDashboardRecommended(limit: number = 4): Promise<RecommendedCourseDto[]> {
+  return httpClient.get(`${BASE_PATH}/dashboard/recommended?limit=${limit}`);
 }

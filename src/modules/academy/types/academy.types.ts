@@ -423,3 +423,85 @@ export interface StudentProgress {
     moduloTitulo: string;
   } | null;
 }
+
+// ============================================
+// CERTIFICADOS
+// ============================================
+
+export interface AcademyCertificado {
+  id: number;
+  codigo: string;
+  matriculaId: number;
+  usuarioId: number;
+  cursoId: number;
+  dataEmissao: string;
+  validadeInicio: string;
+  validadeFim: string | null;
+  cargaHoraria: number;
+  hashValidacao: string;
+  arquivoUrl: string | null;
+  ativo: boolean;
+  createdAt: string;
+  updatedAt: string;
+  
+  // Relacionamentos
+  curso?: AcademyCurso;
+  usuario?: {
+    id: number;
+    nome: string;
+    email: string;
+  };
+  matricula?: AcademyMatricula;
+}
+
+export interface CertificadoValidation {
+  codigo: string;
+  valido: boolean;
+  dataEmissao?: string;
+  usuarioNome?: string;
+  cursoTitulo?: string;
+  cargaHoraria?: number;
+}
+
+export interface CertificadoDownload {
+  codigo: string;
+  arquivoUrl: string;
+}
+
+// ============================================
+// DASHBOARD
+// ============================================
+
+export interface DashboardStatsDto {
+  cursosEmAndamento: number;
+  cursosConcluidos: number;
+  horasAssistidas: number;
+  certificados: number;
+}
+
+export interface DashboardCourseDto {
+  id: number;
+  titulo: string;
+  slug: string;
+  thumbnail: string | null;
+  categoria: string;
+  instrutor: string;
+  progresso: number;
+  aulasCompletas: number;
+  totalAulas: number;
+  ultimaAulaId: number | null;
+  dataUltimoAcesso: string;
+}
+
+export interface RecommendedCourseDto {
+  id: number;
+  titulo: string;
+  slug: string;
+  thumbnail: string | null;
+  nivel: CursoNivel;
+  categoria: string;
+  instrutor: string;
+  avaliacaoMedia: number;
+  totalAlunos: number;
+  duracao_horas: number;
+}
